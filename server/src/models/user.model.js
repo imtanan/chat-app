@@ -12,7 +12,7 @@ const userSchema = new Schema({
     },
     email:{
         type: String,
-        required: true,
+        required: [true, "Gmail is required"],
         unique: true,
         lowercase:true,
         trim:true,
@@ -22,6 +22,11 @@ const userSchema = new Schema({
         required: [true, "Password is required"],
         
     },
+
+    avatar: {
+        type: String,
+        default: ""
+    }
 },
 {
     timestamps:true,
