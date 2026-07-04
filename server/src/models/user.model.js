@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt'
 
 const userSchema = new Schema({
     avatar: {
-        type: String,
+        type: String,//cloudinary url
         default: ""
     },
     username:{
