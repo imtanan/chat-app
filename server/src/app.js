@@ -9,8 +9,12 @@ app.use(
     })
 )
 
-app.use(express.json());//This reads JSON data sent by the frontend
-app.use(express.urlencoded({extended:true}));//extended to not proper form data
+app.use(express.json());
+//reads json data from frontend without it :req.body  // ❌ undefined
+app.use(express.urlencoded({extended:true}));
+//takes html form data; extended true → allows nested objects false → only simple key-value
+app.use(express.static("public"));
+//if someone request a file , look in the public folder
 app.use(cookieParser())
 
 app.use("/api/v1/users", userRouter);

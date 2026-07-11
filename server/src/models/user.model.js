@@ -7,6 +7,9 @@ const userSchema = new Schema({
         type: String,//cloudinary url
         required: true,
     },
+    avatarPublicId: {
+  type: String,
+},
     username:{
         type: String,
         required: true,
