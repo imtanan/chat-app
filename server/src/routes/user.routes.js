@@ -6,12 +6,14 @@ import{
     refreshAccessToken,
     changeCurrentPassword,
     updateAccountDetails,
-    getCurrentUser
-} from '../controllers/user.controller'
-import {upload} from '../middlewares/multer.middleware'
-import {verifyJWT} from '../middlewares/auth.middleware'
-import {validate} from '../middlewares/validate.middleware'
-import {loginValidator,registerValidator, updateAccountValidator} from '../validators/user.validator'
+    updateUserAvatar,
+    getCurrentUser,
+    searchUsers
+} from '../controllers/user.controller.js'
+import {upload} from '../middlewares/multer.middleware.js'
+import {verifyJWT} from '../middlewares/auth.middleware.js'
+import validate from '../middlewares/validate.middleware.js'
+import {loginValidator,registerValidator, updateAccountValidator,changePasswordValidator} from '../validators/user.validator.js'
 
 const router = Router()
 router.route('/register').post(
@@ -27,3 +29,6 @@ router.route('/change-password').post(verifyJWT,changePasswordValidator,validate
 router.route('/current-user').get(verifyJWT,getCurrentUser)
 router.route('/update-account').patch(verifyJWT,updateAccountValidator,validate,updateAccountDetails)
 router.route('/avatar').patch(verifyJWT,upload.single("avatar"),updateUserAvatar)
+router.route('/search').get(verifyJWT,searchUsers)
+
+export default router

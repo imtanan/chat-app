@@ -1,12 +1,13 @@
 import jwt from 'jsonwebtoken'
-import {asyncHandler} from '../utils/asyncHandler'
-import {User} from '../models/user.model'
-import {ApiError} from '../utils/ApiError'
-import { ApiResponse } from '../utils/ApiResponse'
+import {asyncHandler} from '../utils/asyncHandler.js'
+import {User} from '../models/user.model.js'
+import {ApiError} from '../utils/ApiError.js'
+import { ApiResponse } from '../utils/ApiResponse.js'
 import {v2 as cloudinary} from "cloudinary"
-import {uploadOnCloudinary} from '../utils/cloudinary'
+import {uploadOnCloudinary} from '../utils/cloudinary.js';
+import fs from 'fs';
 import mongoose from 'mongoose'
-import { use } from 'react'
+
 const generateAccessAndRefreshTokens=async(userId)=>{
    try{
         console.log("ACCESS SECRET:", process.env.ACCESS_TOKEN_SECRET);
@@ -43,6 +44,9 @@ const registerUser = asyncHandler(async(req,res)=>{
       $or : [{username}, {email}],
      });
    if(existedUser){
+      if(req.file?.path){
+         fs.unlinkSync(req.file.path)
+      }
       throw new ApiError(409, "User with email or username already exists")
    }
    const avatarLocalPath = req.file?.path;
@@ -272,6 +276,32 @@ return res
 .status(200)
 .json(new ApiResponse(200,req.user,"User fetched Successfully"))
 }))
+
+const searchUsers=(asyncHandler(async(req,res)=>{
+   const {search} = req.query
+   if(!search || search.trim() === ""){
+     throw new ApiError(400, "Search query is required")
+   }
+   const users = await User.find({
+      $and:[
+         {_id:{$ne:req.user._id}},
+         {
+     $or:[
+      {username:{$regex:search, $options:"i"}},
+      {email:{$regex:search, $options:"i"}}
+     ]
+   }
+   ]
+   }).select("-password -refreshToken")
+   if(users.length === 0){
+      return res
+      .status(200)
+      .json(new ApiResponse(200, [], "No users found"))
+   }
+   return res
+   .status(200)
+   .json(new ApiResponse(200, users, "Users found successfully"))
+}))
 export {
       registerUser,
       loginUser,
@@ -282,4 +312,5 @@ export {
       getCurrentUser,
       updateAccountDetails,
       updateUserAvatar,
+      searchUsers,
 }

@@ -1,7 +1,7 @@
-import { ApiError } from "../utils/ApiError";
-import { asyncHandler } from '../utils/asyncHandler';
+import { ApiError } from "../utils/ApiError.js";
+import { asyncHandler } from '../utils/asyncHandler.js';
 import jwt, { decode } from "jsonwebtoken";
-import {User} from "../models/user.model"
+import {User} from "../models/user.model.js"
 
 export const verifyJWT = asyncHandler(async(req,_,next)=>{ //where '_' is just a naming convention to show that yes i know there is a res param but i m ignoring it cuz there is no use of it here
    
