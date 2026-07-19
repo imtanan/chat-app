@@ -4,6 +4,9 @@ const chatSchema = new Schema({
     chatName:{
         type: String,
       trim:true,
+      required: function(){
+        return this.isGroupChat;
+      }
       //Meaningful only when isGroupChat is true
     },
     isGroupChat:{
@@ -15,7 +18,7 @@ const chatSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref:"User",
     
-    },
+},
 ],
     groupAdmin:{
      type:Schema.Types.ObjectId,
