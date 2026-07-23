@@ -13,7 +13,7 @@ const accessChat = (asyncHandler(async(req,res)=>{
     if(!existingUser){
         throw new ApiError(404,"User not found")
     }
-    const {loggedInUserId} = req.user._id;
+   
     const chat = await Chat.findOne({
       isGroupChat:false,
       
@@ -46,7 +46,7 @@ const getUserChats = (asyncHandler(async(req,res)=>{
     ).populate("participants", "-password -refreshToken").populate("groupAdmin","-password -refreshToken").populate("latestMessage").sort({updatedAt:-1})
     return res
     .status(200)
-    .json(new ApiResponse(201,chats, chats.length===0 ? "No Chats found" : "User Chats retrieved successfully"))
+    .json(new ApiResponse(200,chats, chats.length===0 ? "No Chats found" : "User Chats retrieved successfully"))
 }))
 const createGroupChat = (asyncHandler(async(req,res)=>{
   const {chatName,participants} = req.body

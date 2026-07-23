@@ -11,10 +11,12 @@ if(!token){
     throw new ApiError(401, "Unauthorized request")
 }
 const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET)
+console.log("DECODED TOKEN:", decodedToken);
 const user = await User.findById(decodedToken?._id).select(
 
     "-password -refreshToken"
 )
+console.log("RESOLVED USER:", user?._id, user?.username);
 if(!user){
     throw new ApiError(401, "Invalid  Access Token")
 }

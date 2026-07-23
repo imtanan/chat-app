@@ -9,7 +9,12 @@ const messageSchema = new Schema({
      content:{
         type: String,
         trim:true,
-        required: true,
+        required:function(){
+         return !this.attachment
+        },
+     },
+     attachment:{
+       type: String,//cloudinary url
      },
      chat:{
         type:Schema.Types.ObjectId,
