@@ -5,7 +5,8 @@ import { asyncHandler } from '../utils/asyncHandler.js'
 import {ApiError} from '../utils/ApiError.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
 import {uploadOnCloudinary} from '../utils/cloudinary.js'
-
+ 
+    
 const sendMessage = (asyncHandler(async(req,res)=>{
     const {chatId,content} = req.body
         const findChat = await Chat.findById(chatId)
@@ -26,11 +27,14 @@ const sendMessage = (asyncHandler(async(req,res)=>{
             attachment:attachmentURL,
             chat:chatId,
            })
+           const populatedMessage = await message.populate("sender","-password -refreshToken")
+              const io = req.app.get('io')
+           io.to(chatId).emit("newMessage",populatedMessage)
            await Chat.findByIdAndUpdate(chatId,{latestMessage:message._id})
 
             return res
             .status(201)
-            .json(new ApiResponse(201, message,"Message sent successfully"))
+            .json(new ApiResponse(201, populatedMessage,"Message sent successfully"))
         
 }))
 

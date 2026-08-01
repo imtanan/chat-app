@@ -16,6 +16,7 @@ const io = new Server(httpServer, {
         credentials: true
     }
 })
+app.set('io',io)
 
 io.use(async(socket,next)=>{
     try{
@@ -35,7 +36,12 @@ io.use(async(socket,next)=>{
      next(new Error("Authentication failed"));
     }
 })
+
+const onlineUsers = new Map()
 io.on('connection', (socket)=>{
+    onlineUsers.set(socket.user._id.toString(),socket.id)
+    io.emit('userOnline', socket.user._id)
+    socket.emit('showOnlineUsers',Array.from(onlineUsers.keys()))
     socket.on('joinChat',(chatId)=>{
          socket.join(chatId)
          console.log(`User ${socket.user.username} has joined the room: ${chatId}`)
@@ -44,6 +50,26 @@ io.on('connection', (socket)=>{
             username:socket.user.username,
             userId:socket.user._id
          })
+        })
+        socket.on('typing', (chatId) => {
+            // broadcast to the room, excluding yourself — which method does that?
+         socket.to(chatId).emit("typing",{
+            userId:socket.user._id,
+            username:socket.user.username
+         })
+})
+
+socket.on('stopTyping', (chatId) => {
+ // same idea
+ socket.to(chatId).emit("stopTyping",{
+    userId:socket.user._id,
+ })
+})
+    
+socket.on('disconnect',()=>{
+        onlineUsers.delete(socket.user._id.toString())
+        io.emit('userOffline',socket.user._id)
+          io.emit('showOnlineUsers',Array.from(onlineUsers.keys()))
     })
     console.log('A User connected: ', socket.id)
 })
