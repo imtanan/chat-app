@@ -68,12 +68,117 @@ const createGroup = await Chat.create({
     .json(new ApiResponse(201, createGroup, "Group chat created successfully"))
 
 }))      
+const renameGroup = (asyncHandler(async(req,res)=>{
+  const {chatName} = req.body
+  const {chatId} = req.params;
+if(chatName.trim()===""){
+    throw new ApiError(400,"Chat name cannot be empty")
+}
+  const findChat = await Chat.findOne({
+    _id:chatId,
+    isGroupChat:true,
+    participants:req.user._id,
+  })
+  if(!findChat){
+    throw new ApiError(404, "Group chat not found");
+  }
+  if(!findChat.groupAdmin.equals(req.user._id)){
+    throw new ApiError(403, "Only the group admin can perform this action")
+  }
+  const renameName = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+        chatName,
+    },
+    {
+        new:true,
+    }
+  )
+   .populate("participants", "-password")
+    .populate("groupAdmin", "-password");
+
+   return res.status(200).json(
+        new ApiResponse(200, renameName, "Group renamed successfully")
+    );
+}))
+
+const addToGroup = (asyncHandler(async(req,res)=>{
+    const {chatId} = req.params;
+    const {userId} = req.body;
+    const user = await User.findById(userId)
+    if(!user){
+        throw new ApiError(404,"User not found")
+    }
+    const findChat = await Chat.findOne({
+        _id:chatId,
+        isGroupChat:true,
+        participants:req.user._id,
+     
+      })
+      if(!findChat){
+        throw new ApiError(404,"Group chat not found")
+      }
+      if (!findChat.groupAdmin.equals(req.user._id)) {
+  throw new ApiError(403, "Only the group admin can perform this action")
+}
+      if(findChat.participants.some((p)=>p.equals(userId))){
+         throw new ApiError(400, "User is already in the group");
+      }
+      findChat.participants.push(userId)
+      await findChat.save()
+   await findChat.populate("participants", "-password");
+await findChat.populate("groupAdmin", "-password");
+
+return res.status(200).json(new ApiResponse(200, findChat, "User added to group successfully"))
+}))
+const removeFromGroup= (asyncHandler(async(req,res)=>{
+    const {chatId} = req.params;
+    const {userId} = req.body;
+    const user = await User.findById(userId)
+    if(!user){
+        throw new ApiError(404,"User not found")
+    }
+    
+const findChat =await Chat.findOne({
+    _id:chatId,
+    isGroupChat:true,
+    participants:req.user._id,
+})
+if(!findChat){
+    throw new ApiError(404,"Group chat not found")
+}
+if (findChat.groupAdmin.equals(req.user._id) && userId === req.user._id.toString()) {
+  throw new ApiError(400, "Admin cannot remove themselves from the group")
+}
+if(!findChat.groupAdmin.equals(req.user._id) && userId !== req.user._id.toString()){
+    throw new ApiError(403,"Only the group admin can perform this action or you can remove yourself from the group")
+}
+
+if(!findChat.participants.some((p)=>p.equals(userId))){
+    throw new ApiError(400,"User is not in the group")
+}
+const updatedGroup = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+        $pull:{
+            participants:userId
+        }
+    },
+    {new:true}
+)
+await updatedGroup.populate("participants", "-password");
+await updatedGroup.populate("groupAdmin", "-password");
+
+return res.status(200).json(new ApiResponse(200, updatedGroup, "User removed from group successfully"))
 
 
-
+}))
 
 export{
     accessChat,
     getUserChats,
     createGroupChat,
+    renameGroup,
+    addToGroup,
+    removeFromGroup,
 }
