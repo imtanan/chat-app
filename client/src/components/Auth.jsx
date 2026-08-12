@@ -1,15 +1,16 @@
-import React, {useState} from 'react'
+import {useState} from 'react'
 import Login from './Login.jsx'
 import Register from './Register.jsx'
 
-function Auth() {
+function Auth({onLoginSuccess}) {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
     <>
 
- <div className="auth-bg  flex flex-col  items-center gap-2 min-h-screen justify-center ]">
- <div className="flex items-center gap-1.5 mb-2">
+ <div className="auth-bg  flex flex-col  items-center gap-2 min-h-screen pt-20 ">
+  <div className="text-center mb-2">
+ <div className="inline-flex items-center gap-1.5 mb-2">
   <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="white" />
@@ -19,7 +20,8 @@ function Auth() {
     PULSE<span className="text-violet-600">.</span>
   </span>
 </div>
-
+  {isLogin? (<p className="font-['Inter',sans-serif] text-[#6B7491] text-[13px] m-0">Welcome back. Sign in to continue.</p> ): (<p className="font-['Inter',sans-serif] text-[#6B7491] text-[13px] m-0">Create your account to get started.</p>)}
+</div>
 
   {/* CARD */}
   <div className="bg-[#111320] rounded-[20px] p-8 w-full max-w-[420px] border border-[#1E2235] shadow-[0_24px_64px_rgba(0,0,0,0.5)]">
@@ -47,7 +49,7 @@ function Auth() {
     </div>
 
     <div className="mt-6">
-      {isLogin ? <Login /> : <Register />}
+      {isLogin ? <Login onLoginSuccess={onLoginSuccess}/> : <Register onRegisterSuccess={onLoginSuccess}/>}
     </div>
 
   </div>
