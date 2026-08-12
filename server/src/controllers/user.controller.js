@@ -47,22 +47,31 @@ const registerUser = asyncHandler(async(req,res)=>{
       if(req.file?.path){
          fs.unlinkSync(req.file.path)
       }
-      throw new ApiError(409, "User with email or username already exists")
+      throw new ApiError(409, "Email or username already exists.")
    }
-   const avatarLocalPath = req.file?.path;
-   if(!avatarLocalPath){
-      throw new ApiError(400, "Avatar is required")
+   let avatarUrl;
+   let avatarPublicId=null;
+   if(req.file?.path){
+      const avatar = await uploadOnCloudinary(req.file.path)
+      if(!avatar){
+         throw new ApiError(500, "Something went wrong while uploading the avatar")
+      }
+    avatarUrl = avatar.url;
+    avatarPublicId = avatar.public_id;
    }
-   const avatar = await uploadOnCloudinary(avatarLocalPath)
-   if(!avatar){
-      throw new ApiError(500, "Something went wrong while uploading the avatar")
-   }
+    else{
+       avatarUrl = `https://api.dicebear.com/7.x/initials/svg?seed=${username}`;
+    }
+
+
+   
+  
    const user = await User.create({
       username: username.toLowerCase(),
       email,
       password,
-      avatar: avatar.url,
-      avatarPublicId: avatar.public_id,
+      avatar: avatarUrl,
+      avatarPublicId,
 
 })
    const createdUser = await User.findById(user._id).select(
