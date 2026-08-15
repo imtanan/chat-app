@@ -14,7 +14,9 @@ const handleSubmit = async(e)=>{
   setLoading(true)
   try{
       const res = await api.post("users/register", {username,email,password})
-      onRegisterSuccess(res.data.data.user)
+      onRegisterSuccess(res.data.data)
+      console.log("REGISTERED USER:", res.data.data.user);
+      console.log("FULL REGISTER RESPONSE:", res.data);
   }catch(err){
     console.log('Full Error', err)
     console.log('RESPONSE DATA:', err.response?.data)

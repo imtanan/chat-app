@@ -11,9 +11,10 @@ const handleSubmit = async(e)=>{
     setLoading(true)
     try{
     const res = await api.post("users/login",{email,password})
-    onLoginSuccess(res.data.data.user)
+    onLoginSuccess(res.data?.data?.user)
     }catch(err){
-        setError(err.message)
+        console.log(err.response.data);
+        setError(err.response?.data?.message)
     }finally{
         setLoading(false)
     }

@@ -60,7 +60,7 @@ function App() {
 
   return (
   <>
-  {user?(<Dashboard user={user} setUser={setUser}/>):(<Auth onLoginSuccess={setUser}/>)}
+  {user?(<Dashboard user={user} setUser={setUser}/>):(<Auth onLoginSuccess={setUser} onRegisterSuccess={setUser}/>)}
   </>
   )
 }

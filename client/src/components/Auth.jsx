@@ -2,7 +2,7 @@ import {useState} from 'react'
 import Login from './Login.jsx'
 import Register from './Register.jsx'
 
-function Auth({onLoginSuccess}) {
+function Auth({onLoginSuccess,onRegisterSuccess}) {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
@@ -49,7 +49,7 @@ function Auth({onLoginSuccess}) {
     </div>
 
     <div className="mt-6">
-      {isLogin ? <Login onLoginSuccess={onLoginSuccess}/> : <Register onRegisterSuccess={onLoginSuccess}/>}
+      {isLogin ? <Login onLoginSuccess={onLoginSuccess}/> : <Register onRegisterSuccess={onRegisterSuccess}/>}
     </div>
 
   </div>
