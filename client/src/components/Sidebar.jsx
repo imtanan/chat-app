@@ -1,12 +1,47 @@
-import {useState,useRef} from 'react'
+import {useState,useRef,useEffect} from 'react'
 import { Search, X } from 'lucide-react';
 import api from '../api/axios.js'
-function Sidebar({user,setUser}) {
+function Sidebar({user,setUser,setCurrentChat,currentChat}) {
    const [loading, setLoading] = useState(false);
    const [searchLoading, setSearchLoading] = useState(false);
    const [results, setResults] = useState([]);
    const [error, setError] = useState('');
+   const [chats, setChats]= useState([]);
+    const [query, setQuery] = useState('');
+    const[isSelected, setIsSelected] = useState(false);
 
+    useEffect(()=>{
+      api.get('chats/getUserChats').then(res=>setChats(res.data.data)).catch(err=>console.log(err))
+    },[])
+
+
+const otherParticipant = ((chat)=>
+  chat.participants.find(p=>p._id !== user._id)
+)
+
+
+ const searchTimeout=useRef(null);
+const handleInputChange = async(e) => {
+ 
+  const value = e.target.value.trim();
+  
+  setQuery( value)
+  clearTimeout(searchTimeout.current);
+  
+  searchTimeout.current = setTimeout(async()=>{
+    setSearchLoading(true)
+    try{
+  const response = await api.get(`users/search?search=${value}`)
+setResults(response.data.data)
+}catch(err){
+console.log(err)
+}finally{
+    setSearchLoading(false)
+  }
+
+},500)
+  
+}
    const handleSignOut=async(e)=>{
         e.preventDefault()
        setLoading(true)
@@ -20,31 +55,10 @@ function Sidebar({user,setUser}) {
       }
        
     }
-    const searchTimeout=useRef(null);
-    const [query, setQuery] = useState('');
-    const handleInputChange = async(e) => {
-     
-      const value = e.target.value.trim();
-      
-      setQuery( value)
-      clearTimeout(searchTimeout.current);
-      
-      searchTimeout.current = setTimeout(async()=>{
-        setSearchLoading(true)
-        try{
-  const response = await api.get(`users/search?search=${value}`)
-setResults(response.data.data)
-}catch(err){
-  console.log(err)
-}finally{
-        setSearchLoading(false)
-      }
-    
-},500)
-      
-    }
+   
+   
   return (
-    <div className="w-[300px] shrink-0 h-screen bg-blue-500 flex-col">
+    <div className="w-[300px] shrink-0 h-screen bg-[#111320] border-r border-[#1E2235] flex flex-col">
  <div className="inline-flex items-center gap-1.5 mb-2">
   <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -92,6 +106,38 @@ setResults(response.data.data)
     </span>
   )
   )}
+</div>
+{/* show chats lists that exists
+give direct chat and group chat separately with a toggle
+get their images and the username
+make each chats clickable and clicking it must give setCurrentChat prop a chat */}
+<div className="flex flex-col overflow-y-auto flex-1">
+ {
+  chats && chats.map((chat)=>{
+  // condition 1 opening
+  
+  const participant=otherParticipant(chat);
+   const avatarSrc = chat.isGroupChat ? `https://api.dicebear.com/7.x/initials/svg?seed=${chat.chatName}` : participant.avatar;
+   const displayName = chat.isGroupChat ? chat.chatName : participant.username;
+  return  (
+    
+  <button key={chat._id} onClick={()=>{setCurrentChat(chat); setIsSelected(true)}} className={`flex items-center gap-3 px-4 py-3 ${currentChat._id=== chat._id? "bg-[#181A28] rounded-lg outline outline-1 outline-[#7C3AED33]" : ""}  hover:bg-[#13151F] cursor-pointer transition-colors text-left`}>
+  <img  src={avatarSrc}
+            className="w-11 h-11 rounded-full shrink-0"
+          />
+          <div className="flex-1 min-w-0">
+           <span className="text-sm text-white truncate block">
+            {displayName}
+          </span>
+            <p className='text-xs text-[#6b7491] truncate '>{chat.latestMessage?.content || "No Message Yet"}</p>
+
+          </div>
+  </button>
+  
+)// condition 1 closing
+  }//map bracket
+  )//map closing
+ }
 </div>
 
 
