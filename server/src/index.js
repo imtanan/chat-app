@@ -9,6 +9,7 @@ import {createServer} from 'http'
 import {Server} from 'socket.io'
 import { app } from './app.js'
 
+
 const httpServer = createServer(app)//when we are not using socket, express does this internally without showing us when we do app.listen....but when using socket, we need this httpServer for putting in io thats why we have to explicitly assign it in this case....Purpose: its purpose is to create a server where app could listen to connect an HTTP SERVER for apis
 const io = new Server(httpServer, {
     cors:{
@@ -20,27 +21,44 @@ app.set('io',io)
 
 io.use(async(socket,next)=>{
     try{
-    const token = socket.handshake.auth?.token;
+          
+        const cookieHeader = socket.handshake.headers.cookie || "";
+
+const token = cookieHeader
+    .split("; ")
+    .find(row => row.startsWith("accessToken="))
+    ?.split("=")[1];
+
+    
     if(!token){
+         
         return next(new Error('Authentication Error'))
     }
     const decoded = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
+    
     const user = await User.findById(decoded._id).select("-password -refreshToken");
+       console.log("👤 USER:", user?._id);
     if(!user){
+         
         throw new Error("User not found");
     }
     socket.user = user;
+
     next();
 
     }catch(err){
+        
      next(new Error("Authentication failed"));
     }
 })
 
 const onlineUsers = new Map()
 io.on('connection', (socket)=>{
+   
     onlineUsers.set(socket.user._id.toString(),socket.id)
-    io.emit('userOnline', socket.user._id)
+   
+    io.emit('userOnline', socket.user._id.toString())
+    console.log("🟢 USER CAME ONLINE:",  socket.user._id.toString())
     socket.emit('showOnlineUsers',Array.from(onlineUsers.keys()))
     socket.on('joinChat',(chatId)=>{
          socket.join(chatId)
@@ -68,7 +86,7 @@ socket.on('stopTyping', (chatId) => {
     
 socket.on('disconnect',()=>{
         onlineUsers.delete(socket.user._id.toString())
-        io.emit('userOffline',socket.user._id)
+        io.emit('userOffline',socket.user._id.toString())
           io.emit('showOnlineUsers',Array.from(onlineUsers.keys()))
     })
     console.log('A User connected: ', socket.id)

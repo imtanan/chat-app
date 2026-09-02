@@ -3,6 +3,8 @@ import {User} from '../models/user.model.js'
 import { asyncHandler } from '../utils/asyncHandler.js'
 import {ApiError} from '../utils/ApiError.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
+
+//This one is for one-to-one
 const accessChat = (asyncHandler(async(req,res)=>{
     //take user id 
     //make sure the chat we are accessing exists...Otherwise create a  new one
@@ -39,6 +41,7 @@ return res
 
 
 }))
+//This one is for Groups 
 const getUserChats = (asyncHandler(async(req,res)=>{
     const chats = await Chat.find({
 
