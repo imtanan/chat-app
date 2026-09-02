@@ -4,14 +4,17 @@ import ChatWindow from './ChatWindow.jsx'
 
 function Dashboard({user,setUser}) {
   const [currentChat, setCurrentChat] = useState(null);
-   
-  return (
-    <div className="min-h-screen flex">
-        <Sidebar user={user} setUser={setUser}  currentChat={currentChat} setCurrentChat={setCurrentChat}/>
-      <ChatWindow currentChat={currentChat} />
-       
+  const [avatarSrc, setAvatarSrc] = useState(null);
+  const [displayName, setDisplayName] = useState(null);
+  
 
-        
+
+
+     return (
+    <div className="h-screen flex">
+        <Sidebar user={user} setUser={setUser} displayName={displayName} avatarSrc={avatarSrc} setDisplayName={setDisplayName} setAvatarSrc={setAvatarSrc}  currentChat={currentChat} setCurrentChat={setCurrentChat}  />
+      <ChatWindow currentChat={currentChat} avatarSrc={avatarSrc} setDisplayName={setDisplayName} setAvatarSrc={setAvatarSrc}   user={user} />
+   
       </div>
 
      
