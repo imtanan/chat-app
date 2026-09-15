@@ -6,6 +6,7 @@ const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
 const [error, setError] = useState('');
 const [loading, setLoading] = useState(false);
+const [avatarFile, setAvatarFile] = useState(null);
 const [avatarPreview, setAvatarPreview] = useState(null);
 
 const handleSubmit = async(e)=>{
@@ -13,7 +14,14 @@ const handleSubmit = async(e)=>{
   setError('')
   setLoading(true)
   try{
-      const res = await api.post("users/register", {username,email,password})
+    const formData = new FormData()
+    formData.append('username',username)
+    formData.append('email',email)
+    formData.append('password',password)
+    if(avatarFile){
+    formData.append('avatar',avatarFile)
+}
+      const res = await api.post("users/register",formData)
       onRegisterSuccess(res.data.data)
       console.log("REGISTERED USER:", res.data.data.user);
       console.log("FULL REGISTER RESPONSE:", res.data);
@@ -27,10 +35,11 @@ const handleSubmit = async(e)=>{
   }
 }
 const handleFileChange = (e) => {
-  const file = e.target.files[0]
+  const file = e.target.files?.[0]
   if(!file) return ;
   setLoading(true)
   try{
+    setAvatarFile(file)
   setAvatarPreview(URL.createObjectURL(file))
   }catch(err){
     console.log('Error uploading file:', err)

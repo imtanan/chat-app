@@ -3,7 +3,8 @@ import {useSocket} from '../context/useSocket.js'
 
 import { Search, X , LogOut} from 'lucide-react';
 import api from '../api/axios.js'
-function Sidebar({user,setUser,setCurrentChat,currentChat}) {
+import UpdateProfile from './UpdateProfile.jsx';
+function Sidebar({user,setUser,setCurrentChat,currentChat,setShowModal} ) {
    const [loading, setLoading] = useState(false);
    const [results, setResults] = useState([]);
    const [chats, setChats]= useState([]);
@@ -168,16 +169,18 @@ console.log("ONLINE USERS CHANGED:", onlineUsers);
 
 
 
+<div className="border border-t border-[#1E2235]">
 
-
-
-<div className='mt-auto w-70 mx-auto'>
+<UpdateProfile user={user} setShowModal={setShowModal} />
+<div className='mt-auto mb-2 w-60 mx-auto'>
   <button disabled={loading} onClick={handleSignOut} className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#160B0B] text-[#EF4444] hover:text-[#FFFFFF] text-sm font-medium hover:bg-[#EF4444] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
        <LogOut className="w-4 h-4" />
         { loading? "Signing Out...":"Sign Out"}
         </button>
+</div> 
 </div>
     </div>
+
   )
 }
 
