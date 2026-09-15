@@ -217,7 +217,7 @@ const updateAccountDetails = (asyncHandler(async(req,res)=>{
    //send response with updated data
    const {username,email} = req.body
    const existedUser = await User.findOne({
-      $or:[{username},{email}]
+      $or:[{username},{email}], _id:{$ne:req.user?._id}
    })
 if(existedUser){
    throw new ApiError(409, "User with this username or email already exists")
