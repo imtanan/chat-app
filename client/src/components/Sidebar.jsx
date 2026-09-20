@@ -1,10 +1,10 @@
 import {useState,useRef,useEffect} from 'react'
 import {useSocket} from '../context/useSocket.js'
-
+import { Users, Plus } from 'lucide-react';
 import { Search, X , LogOut} from 'lucide-react';
 import api from '../api/axios.js'
 import UpdateProfile from './UpdateProfile.jsx';
-function Sidebar({user,setUser,setCurrentChat,currentChat,setShowModal} ) {
+function Sidebar({user,setUser,setCurrentChat,currentChat,setShowModal,setGroupModal} ) {
    const [loading, setLoading] = useState(false);
    const [results, setResults] = useState([]);
    const [chats, setChats]= useState([]);
@@ -84,6 +84,7 @@ console.log(err)
   </span>
 </div>
 
+ {/* Search Users */}
 <div>
 <div className="relative mt-2 mb-4 w-65 mx-auto">
   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b7491] pointer-events-none" />
@@ -124,10 +125,31 @@ console.log(err)
   )
   )}
 </div>
-{/* show chats lists that exists
-give direct chat and group chat separately with a toggle
-get their images and the username
-make each chats clickable and clicking it must give setCurrentChat prop a chat */}
+
+{/* New Group Button */}
+<div className="mt-1 mb-2 mr-2 flex justify-end ">
+    <button
+      className="
+      cursor-pointer
+        group flex items-center gap-1 px-3 py-3
+        border border-purple-500 rounded-full
+        text-purple-400 font-semibold
+        transition-all duration-200 ease-out
+        hover:bg-purple-600 hover:text-white hover:border-purple-600
+        hover:shadow-lg hover:shadow-purple-500/30
+      "
+      onClick={() => setGroupModal(true)}
+    >
+      <div className="flex items-center">
+        <Users size={17} className="group-hover:text-white" />
+        <Plus size={14} className="-ml-2 group-hover:text-white" />
+      </div>
+      <span className="text-xs">New Group</span>
+    </button>
+
+</div>
+
+{/* User Chats */}
 <div className="flex flex-col overflow-y-auto flex-1">
  {
   chats && chats.map((chat)=>{
@@ -161,9 +183,9 @@ console.log("ONLINE USERS CHANGED:", onlineUsers);
           </div>
   </button>
   
-)// condition 1 closing
-  }//map bracket
-  )//map closing
+)
+  }
+  )
  }
 </div>
 

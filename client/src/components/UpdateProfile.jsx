@@ -15,7 +15,7 @@ const displayName = user?.username
          <span className="text-sm  text-white truncate block">
             {displayName} 
           </span>
-          <UserRoundPen size={19} className="ml-auto text-[#6b7491]"/>
+          <UserRoundPen size={19} className="ml-auto text-[#6b7491] hover:text-violet-600"/>
           </button>
     </div>
     
