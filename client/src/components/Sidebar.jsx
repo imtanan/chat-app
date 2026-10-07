@@ -4,10 +4,10 @@ import { Users, Plus } from 'lucide-react';
 import { Search, X , LogOut} from 'lucide-react';
 import api from '../api/axios.js'
 import UpdateProfile from './UpdateProfile.jsx';
-function Sidebar({user,setUser,setCurrentChat,currentChat,setShowModal,setGroupModal} ) {
+function Sidebar({user,setUser,chats,setChats,setCurrentChat,currentChat,setShowModal,setGroupModal} ) {
    const [loading, setLoading] = useState(false);
    const [results, setResults] = useState([]);
-   const [chats, setChats]= useState([]);
+   
     const [query, setQuery] = useState('');
     const[isSelected, setIsSelected] = useState(false);
     const {onlineUsers, socket} = useSocket()
@@ -27,13 +27,35 @@ useEffect(()=>{
         )
       );
       });
-      return()=> socket.off("newMessage");
+
+      socket.on('newGroupCreated',(group)=>{
+        setChats((prevChats)=>[...prevChats,group])
+      })
+      return()=>{
+         socket.off("newMessage");
+         socket.off('newGroupCreated')
+        }
 }, [socket]);
 
 const otherParticipant = ((chat)=>
   chat.participants.find(p=>p._id !== user._id)
 )
 
+const accessUserChat = async(user)=>{
+     try {
+      const userId=  user._id
+      const response =await api.post('chats/accessChat',{userId})
+      console.log("Response",response.data.data)
+      const chat= response.data.data
+      setChats((prev)=>{
+        const exists = prev.some((c)=>c._id === chat._id)
+        return exists? prev: [...prev,chat]
+      })
+      setCurrentChat(chat)
+     } catch (error) {
+      console.log('error accessing the chat', error)
+     }
+}
 
  const searchTimeout=useRef(null);
 const handleInputChange = async(e) => {
@@ -85,7 +107,7 @@ console.log(err)
 </div>
 
  {/* Search Users */}
-<div>
+
 <div className="relative mt-2 mb-4 w-65 mx-auto">
   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b7491] pointer-events-none" />
 
@@ -96,13 +118,15 @@ console.log(err)
     value={query}
     className="w-full pl-10 pr-4 py-2.5  rounded-lg bg-[#0b0d17] border border-[#1E2235] text-white text-sm placeholder:text-[#6b7491] outline-none focus:border-violet-600 transition-colors"
   />
-  </div>
+  
 
-  {query && (results.length > 0 ? (
-    <div className="mt-2 space-y-1">
-      {results.map((user) => (
+  {query && (
+    <div className="absolute top-full left-0 right-0 mt-2 p-4 bg-[#0b0d17] rounded-lg  z-20 border border-[#1E2235]  max-h-60 overflow-y-auto shadow-lg space-y-4">
+      {results.length>0?(
+      results.map((user) => (
         <div
           key={user._id}
+          onClick={()=>accessUserChat(user)}
           className="flex items-center gap-2 rounded-lg hover:bg-[#111320] cursor-pointer"
         >
           
@@ -116,15 +140,16 @@ console.log(err)
             {user.username}
           </span>
         </div>
-      ))}
-    </div>
-  ) : (
-    <span className="text-sm text-white">
+      ))
+    ) : (
+      <div className="px-3 py-2 text-sm text-[#6b7491]">
       No users found
-    </span>
-  )
+    </div>
   )}
-</div>
+  </div>
+  )}
+  </div>
+
 
 {/* New Group Button */}
 <div className="mt-1 mb-2 mr-2 flex justify-end ">

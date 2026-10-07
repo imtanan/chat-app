@@ -4,7 +4,7 @@ import ChatHeader from './ChatHeader.jsx'
 import MessageInput from './MessageInput.jsx'
 import api from '../api/axios.js'
 
-function ChatWindow({ currentChat, user }) {
+function ChatWindow({ currentChat,setGroupInfo, user }) {
   const {socket, onlineUsers} = useSocket();
   const [messages, setMessages] = useState([])
   const bottomRef = useRef(null)
@@ -51,7 +51,7 @@ console.log("HANDLER", handleNewMessage)
       <div className="flex-1 flex flex-col h-full bg-[#0b0d17]">
 
         {/* Header */}
-        <ChatHeader currentChat={currentChat} otherParticipant={otherParticipant} />
+        <ChatHeader currentChat={currentChat} otherParticipant={otherParticipant} setGroupInfo={setGroupInfo} />
 
         {/* Messages */}
         <div className="overflow-y-auto flex-1 px-7 custom-scrollbar">

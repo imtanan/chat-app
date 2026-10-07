@@ -1,7 +1,9 @@
-import {useEffect} from 'react'
+
+import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import {useSocket} from '../context/useSocket.js'
 
-function ChatHeader({currentChat,otherParticipant}) {
+function ChatHeader({currentChat,setGroupInfo,otherParticipant}) {
   const {onlineUsers} = useSocket()
 
 
@@ -10,7 +12,8 @@ const avatarSrc = currentChat?.isGroupChat ? `https://api.dicebear.com/7.x/initi
 const displayName = currentChat?.isGroupChat ? currentChat?.chatName : otherParticipant?.username;
   return (
     <>
-    {currentChat?(<div className='flex items-center  gap-2.5 px-6 py-4 border-b border-[#1E2235] bg-[#111320]'>
+    {currentChat? (currentChat.isGroupChat?(<div className="flex items-center px-6 py-4 border-b border-[#1E2235] bg-[#111320]">
+      <button className='flex items-center  gap-2.5 px-2 py-1 -mx-2 -my-1 hover:bg-[#181A28] rounded-lg transition-colors cursor-pointer' onClick={()=>setGroupInfo(true)}>
       <div className='relative'>
      <img src={avatarSrc} className='w-9 h-9 rounded-3xl' shrink-0 />
      {isOnline && <span className='absolute bottom-0 right-0  w-3 h-3 rounded-full bg-green-600 border-2 border-[#111320]'></span>}
@@ -19,7 +22,24 @@ const displayName = currentChat?.isGroupChat ? currentChat?.chatName : otherPart
         <span className='text-white text-sm font-semibold'>{displayName}</span>
          <p className={`text-xs  ${isOnline?'text-green-500':'text-gray-500' }`}>{currentChat?.isGroupChat ? `${currentChat.participants.length} members` : isOnline? "Active Now" : "Offline"}</p>
         </div>
-        </div>):(<div className='flex items-center  gap-2.5 px-6 py-4 border-b border-[#1E2235] bg-[#111320] h-[73px]'> <span className="text-sm text-[#6b7491]">Select a chat to start messaging</span></div>)
+        <ChevronDown className="w-4 h-4 text-[#6b7491] ml-2"/>
+        </button>
+        </div>):(
+          <div className="flex items-center gap-2.5 px-6 py-4 border-b border-[#1E2235] bg-[#111320]">
+     
+      <div className='relative'>
+     <img src={avatarSrc} className='w-9 h-9 rounded-3xl' shrink-0 />
+     {isOnline && <span className='absolute bottom-0 right-0  w-3 h-3 rounded-full bg-green-600 border-2 border-[#111320]'></span>}
+     </div>
+     <div className='flex flex-col mt-4'>
+        <span className='text-white text-sm font-semibold'>{displayName}</span>
+         <p className={`text-xs  ${isOnline?'text-green-500':'text-gray-500' }`}>{currentChat?.isGroupChat ? `${currentChat.participants.length} members` : isOnline? "Active Now" : "Offline"}</p>
+        </div>
+        
+        
+        </div>
+        )
+      ):(<div className='flex items-center  gap-2.5 px-6 py-4 border-b border-[#1E2235] bg-[#111320] h-[73px]'> <span className="text-sm text-[#6b7491]">Select a chat to start messaging</span></div>)
       }
       </>
   )
