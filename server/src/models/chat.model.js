@@ -13,6 +13,13 @@ const chatSchema = new Schema({
         type:Boolean,
         default: false,
     },
+      avatar: {
+        type: String,//cloudinary url
+        default: "",
+    },
+    avatarPublicId: {
+  type: String,
+},
     participants:[
     {
     type: Schema.Types.ObjectId,

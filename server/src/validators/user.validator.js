@@ -24,14 +24,13 @@ export const loginValidator= [
     ]
     export const updateAccountValidator= [
         body('username')
-        .optional()
+        .optional({values: 'falsy'})
         .trim()
-        .notEmpty().withMessage("Username is required"),
+        .isLength({ min: 3, max: 30 }).withMessage('Username must be 3-30 characters'),
         body('email')
-        .optional()
-        .trim()
-        .notEmpty().withMessage("Email is required")
-        .isEmail().withMessage("Invalid email format"),
+      .optional({ values: 'falsy' })
+      .trim()
+      .isEmail().withMessage("Invalid email format"),
         
     ]
 

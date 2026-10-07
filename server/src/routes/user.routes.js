@@ -7,6 +7,7 @@ import{
     changeCurrentPassword,
     updateAccountDetails,
     updateUserAvatar,
+    updateGroupAvatar,
     getCurrentUser,
     searchUsers
 } from '../controllers/user.controller.js'
@@ -29,6 +30,7 @@ router.route('/change-password').post(verifyJWT,changePasswordValidator,validate
 router.route('/current-user').get(verifyJWT,getCurrentUser)
 router.route('/update-account').patch(verifyJWT,updateAccountValidator,validate,updateAccountDetails)
 router.route('/avatar').patch(verifyJWT,upload.single("avatar"),updateUserAvatar)
+router.route('/group-avatar/:chatId').patch(verifyJWT,upload.single("avatar"),updateGroupAvatar)
 router.route('/search').get(verifyJWT,searchUsers)
 
 export default router

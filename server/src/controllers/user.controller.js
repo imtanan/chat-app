@@ -281,6 +281,44 @@ const updateUserAvatar = (asyncHandler(async(req,res)=>{
    .json(new ApiResponse(200, user, "Avatar has been Updated Successfully"))
 }))
 
+// chat.controller.js
+const updateGroupAvatar = asyncHandler(async (req, res) => {
+  const { chatId } = req.params;
+  const chat = await Chat.findById(chatId);
+
+  if (!chat) throw new ApiError(404, "Group not found");
+  if (!chat.isGroupChat) throw new ApiError(400, "Not a group chat");
+
+  // Since "anyone can change" — no admin check here (unlike rename/remove)
+  if (!chat.participants.some(p => p.equals(req.user._id))) {
+    throw new ApiError(403, "You're not a member of this group");
+  }
+
+  const avatarLocalPath = req.file?.path;
+  if (!avatarLocalPath) throw new ApiError(400, "Avatar file is required");
+
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
+  if (!avatar?.url) throw new ApiError(500, "Failed to upload avatar");
+
+  // cleanup old avatar (non-critical, same pattern as your user avatar)
+  if (chat.avatarPublicId) {
+    cloudinary.uploader.destroy(chat.avatarPublicId).catch(err => console.log(err));
+  }
+
+  chat.avatar = avatar.url;
+  chat.avatarPublicId = avatar.public_id;
+  await chat.save();
+
+  const io = req.app.get('io');
+  const onlineUsers = req.app.get('onlineUsers');
+  chat.participants.forEach((userId) => {
+    const socketId = onlineUsers.get(userId.toString());
+    if (socketId) io.to(socketId).emit('groupAvatarUpdated', { chatId, avatar: chat.avatar });
+  });
+
+  return res.status(200).json(new ApiResponse(200, chat, "Group avatar updated successfully"));
+});
+
 const getCurrentUser = (asyncHandler(async(req,res)=>{
 return res
 .status(200)
@@ -322,5 +360,6 @@ export {
       getCurrentUser,
       updateAccountDetails,
       updateUserAvatar,
+      updateGroupAvatar,
       searchUsers,
 }

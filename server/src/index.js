@@ -53,6 +53,7 @@ const token = cookieHeader
 })
 
 const onlineUsers = new Map()
+app.set('onlineUsers',onlineUsers )
 io.on('connection', (socket)=>{
    
     onlineUsers.set(socket.user._id.toString(),socket.id)

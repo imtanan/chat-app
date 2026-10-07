@@ -66,6 +66,15 @@ const createGroup = await Chat.create({
     groupAdmin:req.user._id,
   
 })
+const io = req.app.get('io')
+const onlineUsers = req.app.get('onlineUsers')
+participants.forEach((userId)=>{
+    const socketId = onlineUsers.get(userId.toString())
+if(socketId){
+    io.to(socketId).emit('newGroupCreated', createGroup)
+}
+})
+
     return res
     .status(201)
     .json(new ApiResponse(201, createGroup, "Group chat created successfully"))
