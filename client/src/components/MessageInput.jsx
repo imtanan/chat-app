@@ -1,9 +1,14 @@
-import {useState} from 'react'
+import {useState,useRef} from 'react'
 import api from '../api/axios.js'
+import {useSocket} from '../context/useSocket.js'
 
 function MessageInput({currentChat, setLatestFlag}) {
     const [message, setMessage] = useState('')
     const [loading, setLoading] = useState(false)
+
+     const {onlineUsers, socket} = useSocket()
+
+     const typingTimer = useRef(null)
    
     const sendMessage=async(e)=>{
     e.preventDefault()
@@ -15,7 +20,8 @@ function MessageInput({currentChat, setLatestFlag}) {
       content:message,  
     })
    
-  
+  clearTimeout(typingTimer.current)
+socket.emit('stopTyping', currentChat._id)
     
     setMessage("")
    setLatestFlag(true)
@@ -33,12 +39,24 @@ function MessageInput({currentChat, setLatestFlag}) {
       }
 
     }
+
+    const handleChange=(e)=>{
+      setMessage(e.target.value)
+      socket.emit('typing', currentChat._id)
+
+     clearTimeout(typingTimer.current)
+     typingTimer.current=setTimeout(()=>{
+           socket.emit('stopTyping',currentChat._id)
+     },2000)
+
+    }
+
   return (
     <div className='relative flex items-center w-full'>
         <textarea 
         disabled={loading}
         value={loading?"Loading":message? message: ""}
-        onChange={(e)=>setMessage(e.target.value)}
+        onChange={handleChange}
         placeholder='Type a message...'
         rows={1}
         onKeyDown={handleKeyDown}

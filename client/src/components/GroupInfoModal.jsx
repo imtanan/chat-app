@@ -1,38 +1,72 @@
 import {useState,useRef} from 'react'
-import {Search,X} from 'lucide-react'
+import {Search,LogOut,X} from 'lucide-react'
 import api from '../api/axios.js'
 function GroupInfoModal({user,setChats, currentChat,setCurrentChat,onClose}) {
-  const [avatarFile, setAvatarFile] = useState(null);
+  
+  
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState([]);
+  const [naming, setNaming] = useState(null)
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  
 const fileInputRef = useRef(null)
- const searchInputRef = useRef(null)
+const searchInputRef = useRef(null)
 const participants = currentChat?.participants
 const adminId = currentChat?.groupAdmin?._id
 const iAmAdmin = adminId ===user?._id
 
+const trimmed = (naming ?? '').trim();
+const disabled = naming === null || trimmed === '' || trimmed === currentChat.chatName;
+
 const lists = results.filter((item)=> !participants.some((participant)=>participant._id === item._id))
+const avatarSrc = currentChat?.avatar? currentChat.avatar : `https://api.dicebear.com/7.x/initials/svg?seed=${currentChat.chatName}` 
 
 
-  const avatarSrc = currentChat?.avatar? currentChat.avatar : `https://api.dicebear.com/7.x/initials/svg?seed=${currentChat.chatName}` 
+const saveGroupName=async()=>{
+      
+  try{
+    const response = await api.put(`chats/renameGroup/${currentChat._id}`,{
+      chatName:trimmed,
+    })
+   
+const updatedChat = response.data.data
+
+ setCurrentChat(updatedChat)
+  setChats((prev) => prev.map((c) => (c._id === updatedChat._id ? updatedChat : c)))
+  setNaming(null);
+  }catch(err){
+    console.log('error saving the username', err)
+  }
+}
+
   const updateAvatar = async(e) => {
 
-e.preventDefault();
-const file=e.target.files?.[0]
+
+    e.preventDefault();
+    const file=e.target.files?.[0]
+    if(!file)return
 const formData = new FormData();
 
-if(!file)return
+formData.append('avatar', file)
+
+setAvatarPreview(URL.createObjectURL(file))
 
 try{
-  formData.append('avatar', avatarFile)
-  setAvatarFile(file)
-  setAvatarPreview(URL.createObjectURL(file))
-  await api.patch(`users/group-avatar/${currentChat._id}`,formData)
-}catch(err){
- console.log('Error uploading file:', err)
-    setError("Failed to upload file")
+const response = await api.patch(`users/group-avatar/${currentChat._id}`,formData)
+
+const updatedChat = response.data.data
+
+ setCurrentChat(updatedChat)
+  setChats((prev) => prev.map((c) => (c._id === updatedChat._id ? updatedChat : c)))
+  setAvatarPreview(null)
+
+}catch{
+ 
+  setAvatarPreview(null)
+  setError('Failed to upload file')
 }
 
   }
@@ -76,6 +110,20 @@ const addMember=async(user)=>{
       console.log('Error removing participant:', err)
     }
   }
+
+  const handleLeave=async()=>{
+    setLoading(true)
+    try{
+       await api.put(`chats/leaveGroup/${currentChat._id}`)
+      
+         setChats((prev) => prev.filter((c) => c._id !== currentChat._id))
+    setCurrentChat(null)
+    }catch(err){
+      console.log("Error leaving the group",err)
+    }finally{
+      setLoading(false)
+    }
+  }
   return (
     <div className="fixed flex items-center justify-center inset-0 z-50 backdrop-blur-sm bg-black/40" onClick={onClose}>
       <div className="  bg-[#0d0f1a] border border-[#1E2235] rounded-2xl w-full max-w-md mx-4 " onClick={(e)=>e.stopPropagation()}>
@@ -99,12 +147,23 @@ const addMember=async(user)=>{
 </div>
  
       <div className="px-6 py-5 space-y-4">
-   <div>
+        <div className="gap-4 flex  items-end">
+   <div className="text-end min-w-0 flex-1">
             <label className='block text-[14px] text-start font-semibold text-[#6b7491] tracking-[0.08em] uppercase ml-1 mb-2'>Group Name</label>
            <input 
-           value={currentChat.chatName} 
+           onChange={(e) => setNaming(e.target.value)}
+           value={naming??currentChat.chatName} 
            className="w-full  px-[8px]  py-[11px] text-sm border border-[#1E2235] bg-[#0b0d17] rounded-[10px] text-white outline-none focus:border-violet-600"
            /> 
+          </div>
+          
+        
+        {iAmAdmin &&(  <button className={` flex border  items-center text-xs font-bold px-5 py-[11px] rounded-[10px] shrink-0 whitespace-nowrap ${disabled?'cursor-not-allowed border-[#1E2235] bg-[#0b0d17] text-[#6b7491]':'cursor-pointer text-[#E6E1F2] border-[#6D3FD1] bg-[#221A47]'} tracking-[0.08em]`}
+           disabled={disabled}
+           onClick={()=>saveGroupName()}
+           >
+           Save Name
+          </button>)}
           </div>
 
           <div className="relative">
@@ -156,11 +215,13 @@ const addMember=async(user)=>{
           participants.map((participant)=>{
             const isMe  = participant?._id === user?._id
             const isParticipantAdmin = participant?._id === adminId;
+            const avatarSrc= participant?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${participant?.username}`
+            console.log('participant', participant)
             return(
               <>
               <div key={participant?._id} className="  flex items-center gap-3 py-3 px-3 rounded-[10px] border border-[#1E2235] bg-[#0b0d17]">
                 <div className="shrink-0 rounded-full w-9 h-9  border-2 border-violet-600 p-0.5">
-               <img src={participant?.avatar? participant?.avatar : 'no Photo'} alt={participant?.name} className='w-full h-full rounded-full object-cover' />
+               <img src={avatarSrc} alt={participant?.username} className='w-full h-full rounded-full object-cover' />
                </div>
                
               <div className='flex-1 min-w-0'>
@@ -177,11 +238,16 @@ const addMember=async(user)=>{
                </button>
               )}
               </div>
+           
           </>
             )
           })
           }
             
+            <button disabled={loading} onClick={handleLeave} className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#160B0B] text-[#EF4444] hover:text-[#FFFFFF] text-sm font-medium hover:bg-[#EF4444] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+       <LogOut className="w-4 h-4" />
+        { loading? "Leaving...":"Leave Group(transfers admin)"}
+        </button>
          </div>
       </div>
     </div>

@@ -31,6 +31,7 @@ useEffect(()=>{
       socket.on('newGroupCreated',(group)=>{
         setChats((prevChats)=>[...prevChats,group])
       })
+      
       return()=>{
          socket.off("newMessage");
          socket.off('newGroupCreated')
@@ -45,7 +46,7 @@ const accessUserChat = async(user)=>{
      try {
       const userId=  user._id
       const response =await api.post('chats/accessChat',{userId})
-      console.log("Response",response.data.data)
+      
       const chat= response.data.data
       setChats((prev)=>{
         const exists = prev.some((c)=>c._id === chat._id)
@@ -185,7 +186,7 @@ console.log(err)
   const isOnline = !chat?.isGroupChat && onlineUsers?.includes(participant._id)
 
 console.log("ONLINE USERS CHANGED:", onlineUsers);
-    const avatarSrc = chat.isGroupChat ? `https://api.dicebear.com/7.x/initials/svg?seed=${chat.chatName}` : participant.avatar;
+    const avatarSrc = chat.isGroupChat ? (chat.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${chat.chatName}`) : participant.avatar;
    const displayName = chat.isGroupChat ? chat.chatName : participant.username;
   return  (
     

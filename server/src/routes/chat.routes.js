@@ -1,7 +1,7 @@
 import {Router} from 'express'
 import {accessChat,getUserChats,createGroupChat, renameGroup,
     addToGroup,
-    removeFromGroup} from '../controllers/chat.controller.js'
+    removeFromGroup,leaveGroup} from '../controllers/chat.controller.js'
 import {createGroupChatValidator,renameGroupValidator,addToGroupValidator,removeFromGroupValidator} from '../validators/chat.validator.js'
 import {verifyJWT} from '../middlewares/auth.middleware.js'
 import validate from '../middlewares/validate.middleware.js'
@@ -14,5 +14,6 @@ router.route('/createGroupChat').post(verifyJWT,createGroupChatValidator,validat
 router.route('/renameGroup/:chatId').put(verifyJWT,renameGroupValidator,validate,renameGroup)
 router.route('/addToGroup/:chatId').put(verifyJWT,addToGroupValidator,validate,addToGroup)
 router.route('/removeFromGroup/:chatId').put(verifyJWT,removeFromGroupValidator,validate,removeFromGroup)
+router.route('/leaveGroup/:chatId').put(verifyJWT, leaveGroup)
 
 export default router

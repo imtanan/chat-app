@@ -71,16 +71,20 @@ io.on('connection', (socket)=>{
          })
         })
         socket.on('typing', (chatId) => {
+             if (!socket.rooms.has(chatId)) return
             // broadcast to the room, excluding yourself — which method does that?
          socket.to(chatId).emit("typing",{
+            chatId,
             userId:socket.user._id,
             username:socket.user.username
          })
 })
 
 socket.on('stopTyping', (chatId) => {
+     if (!socket.rooms.has(chatId)) return
  // same idea
  socket.to(chatId).emit("stopTyping",{
+    chatId,
     userId:socket.user._id,
  })
 })

@@ -66,6 +66,9 @@ const createGroup = await Chat.create({
     groupAdmin:req.user._id,
   
 })
+await createGroup.populate("participants", "-password")
+await createGroup.populate("groupAdmin", "-password")
+
 const io = req.app.get('io')
 const onlineUsers = req.app.get('onlineUsers')
 participants.forEach((userId)=>{
@@ -83,35 +86,43 @@ if(socketId){
 const renameGroup = (asyncHandler(async(req,res)=>{
   const {chatName} = req.body
   const {chatId} = req.params;
-if(chatName.trim()===""){
-    throw new ApiError(400,"Chat name cannot be empty")
-}
+ const name = chatName?.trim();
+  if (!name) {
+    throw new ApiError(400, "Chat name cannot be empty");
+  }
   const findChat = await Chat.findOne({
-    _id:chatId,
-    isGroupChat:true,
-    participants:req.user._id,
+   _id: chatId,
+    isGroupChat: true,
+    participants: req.user._id,
   })
   if(!findChat){
     throw new ApiError(404, "Group chat not found");
   }
+
   if(!findChat.groupAdmin.equals(req.user._id)){
     throw new ApiError(403, "Only the group admin can perform this action")
   }
-  const renameName = await Chat.findByIdAndUpdate(
-    chatId,
-    {
-        chatName,
-    },
-    {
-        new:true,
-    }
+  const renamedChat = await Chat.findByIdAndUpdate(
+  chatId,
+    { chatName: name },
+    { new: true }
   )
    .populate("participants", "-password")
     .populate("groupAdmin", "-password");
 
+    const io = req.app.get('io');
+  const onlineUsers = req.app.get('onlineUsers');
+  if (io && onlineUsers) {
+
+  renamedChat.participants.forEach((user) => {
+     const socketId = onlineUsers.get(user._id.toString());
+    if (socketId) io.to(socketId).emit('groupNameUpdated', { chatId, chatName: name });
+  });
+}
    return res.status(200).json(
-        new ApiResponse(200, renameName, "Group renamed successfully")
+        new ApiResponse(200, renamedChat, "Group renamed successfully")
     );
+
 }))
 
 const addToGroup = (asyncHandler(async(req,res)=>{
@@ -140,6 +151,16 @@ const addToGroup = (asyncHandler(async(req,res)=>{
       await findChat.save()
    await findChat.populate("participants", "-password");
 await findChat.populate("groupAdmin", "-password");
+
+ const io = req.app.get('io');
+  const onlineUsers = req.app.get('onlineUsers');
+  if (io && onlineUsers) {
+
+  findChat.participants.forEach((user) => {
+     const socketId = onlineUsers.get(user._id.toString());
+    if (socketId) io.to(socketId).emit('addedParticipant', findChat);
+  });
+}
 
 return res.status(200).json(new ApiResponse(200, findChat, "User added to group successfully"))
 }))
@@ -181,9 +202,60 @@ const updatedGroup = await Chat.findByIdAndUpdate(
 await updatedGroup.populate("participants", "-password");
 await updatedGroup.populate("groupAdmin", "-password");
 
+const io = req.app.get('io');
+  const onlineUsers = req.app.get('onlineUsers');
+  if (io && onlineUsers) {
+
+   const removedSocketId = onlineUsers.get(userId)   
+  if (removedSocketId) io.to(removedSocketId).emit('removedFromGroup', { chatId })
+
+ 
+  updatedGroup.participants.forEach((p) => {
+    const socketId = onlineUsers.get(p._id.toString())
+    if (socketId) io.to(socketId).emit('groupUpdated', updatedGroup)
+  })
+}
+
 return res.status(200).json(new ApiResponse(200, updatedGroup, "User removed from group successfully"))
+}))
+
+const leaveGroup = (asyncHandler(async(req,res)=>{
+    const {chatId} = req.params
+    const myId = req.user._id;
+    const chat = await Chat.findOne({
+        _id:chatId,
+        isGroupChat:true,
+        participants:myId,
+    })
+    if(!chat){
+        throw new ApiError(404,"Group Chat not found")
+    }
+    const remaining = chat.participants.filter((p)=>!p.equals(myId))
+    if(remaining.length ===0){
+        await Chat.findByIdAndDelete(chatId)
+        return res.status(200).json(new ApiResponse(200, null, "Group deleted as there are no remaining participants"))
+    }
+    chat.participants = remaining
+    if(chat.groupAdmin.equals(myId)){
+chat.groupAdmin = remaining[0]
+    }
+    chat.save()
+
+    await chat.populate("participants", "-password");
+    await chat.populate("groupAdmin", "-password");
+
+    const io = req.app.get('io');
+    const onlineUsers = req.app.get('onlineUsers');
+if(io && onlineUsers){
+    chat.participants.forEach((user)=>{
+    const socketId = onlineUsers.get(user._id.toString())
+if(socketId) io.to(socketId).emit('groupLeft', {chatId,participants:chat.participants,groupAdmin:chat.groupAdmin})
+    })
+
+}
 
 
+    return res.status(200).json(new ApiResponse(200, chat, "Left group successfully"));
 }))
 
 export{
@@ -193,4 +265,5 @@ export{
     renameGroup,
     addToGroup,
     removeFromGroup,
+    leaveGroup
 }

@@ -3,6 +3,7 @@ import {asyncHandler} from '../utils/asyncHandler.js'
 import {User} from '../models/user.model.js'
 import {ApiError} from '../utils/ApiError.js'
 import { ApiResponse } from '../utils/ApiResponse.js'
+import { Chat } from '../models/chat.model.js'
 import {v2 as cloudinary} from "cloudinary"
 import {uploadOnCloudinary} from '../utils/cloudinary.js';
 import fs from 'fs';
@@ -293,11 +294,12 @@ const updateGroupAvatar = asyncHandler(async (req, res) => {
   if (!chat.participants.some(p => p.equals(req.user._id))) {
     throw new ApiError(403, "You're not a member of this group");
   }
-
   const avatarLocalPath = req.file?.path;
+  
   if (!avatarLocalPath) throw new ApiError(400, "Avatar file is required");
 
   const avatar = await uploadOnCloudinary(avatarLocalPath);
+  
   if (!avatar?.url) throw new ApiError(500, "Failed to upload avatar");
 
   // cleanup old avatar (non-critical, same pattern as your user avatar)
@@ -311,10 +313,14 @@ const updateGroupAvatar = asyncHandler(async (req, res) => {
 
   const io = req.app.get('io');
   const onlineUsers = req.app.get('onlineUsers');
+  if (io && onlineUsers) {
   chat.participants.forEach((userId) => {
-    const socketId = onlineUsers.get(userId.toString());
+     const socketId = onlineUsers.get(userId.toString());
     if (socketId) io.to(socketId).emit('groupAvatarUpdated', { chatId, avatar: chat.avatar });
   });
+}
+
+await chat.populate([{path:'participants', select: '-password'},{path: 'groupAdmin', select: '-password'}])
 
   return res.status(200).json(new ApiResponse(200, chat, "Group avatar updated successfully"));
 });
