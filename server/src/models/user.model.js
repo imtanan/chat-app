@@ -1,7 +1,7 @@
 import mongoose, {Schema} from 'mongoose'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
-
+import crypto from 'crypto'
 const userSchema = new Schema({
     avatar: {
         type: String,//cloudinary url
@@ -32,6 +32,14 @@ const userSchema = new Schema({
      refreshToken: {
       type: String,
     },
+
+    resetTokenHash: {
+        type: String,
+    },
+    
+    resetTokenExpiry: {
+     type: Date,
+   },
 
 },
 {
@@ -72,6 +80,13 @@ return jwt.sign(
     }
 )
 }
+userSchema.methods.generateResetToken=async function(){
+const token = crypto.randomBytes(32).toString('hex')
+ this.resetTokenHash = crypto.createHash('sha256').update(token).digest('hex')
+ this.resetTokenExpiry = Date.now()+15*60*1000
+ await this.save({validateBeforeSave:false})
+ return token
+} 
 
 
 export const User = mongoose.model("User", userSchema)

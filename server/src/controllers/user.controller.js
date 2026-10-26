@@ -6,6 +6,7 @@ import { ApiResponse } from '../utils/ApiResponse.js'
 import { Chat } from '../models/chat.model.js'
 import {v2 as cloudinary} from "cloudinary"
 import {uploadOnCloudinary} from '../utils/cloudinary.js';
+import { sendEmail } from '../utils/sendEmail.js'
 import fs from 'fs';
 import mongoose from 'mongoose'
 
@@ -356,6 +357,22 @@ const searchUsers=(asyncHandler(async(req,res)=>{
    .status(200)
    .json(new ApiResponse(200, users, "Users found successfully"))
 }))
+
+const forgotPassword = (asyncHandler(async(req,res)=>{
+   const {email} = req.body
+   const user = await User.find({email})
+   if(!user){
+      throw new ApiError(404, "User with this email not found")
+   }
+   const token = await user.generateResetToken()
+   await sendEmail({
+      to:user.email,
+      subject: 'Reset your password',
+      html: `<p>Click the link to reset your password:</p>
+       <a href="${process.env.FRONTEND_URL}/reset-password/${token}">Reset password</a>`
+   })
+}))
+
 export {
       registerUser,
       loginUser,

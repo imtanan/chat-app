@@ -71,11 +71,13 @@ await createGroup.populate("groupAdmin", "-password")
 
 const io = req.app.get('io')
 const onlineUsers = req.app.get('onlineUsers')
+const roomId = createGroup._id.toString()
 participants.forEach((userId)=>{
     const socketId = onlineUsers.get(userId.toString())
-if(socketId){
+    if(!socketId) return
+   io.sockets.sockets.get(socketId)?.join(roomId)
     io.to(socketId).emit('newGroupCreated', createGroup)
-}
+
 })
 
     return res
@@ -154,10 +156,12 @@ await findChat.populate("groupAdmin", "-password");
 
  const io = req.app.get('io');
   const onlineUsers = req.app.get('onlineUsers');
+  const roomId = findChat._id.toString()
   if (io && onlineUsers) {
-
-  findChat.participants.forEach((user) => {
-     const socketId = onlineUsers.get(user._id.toString());
+      
+      findChat.participants.forEach((user) => {
+          const socketId = onlineUsers.get(user._id.toString());
+          io.sockets.sockets.get(socketId)?.join(roomId)
     if (socketId) io.to(socketId).emit('addedParticipant', findChat);
   });
 }
@@ -204,9 +208,11 @@ await updatedGroup.populate("groupAdmin", "-password");
 
 const io = req.app.get('io');
   const onlineUsers = req.app.get('onlineUsers');
+    const roomId = updatedGroup._id.toString()
   if (io && onlineUsers) {
 
-   const removedSocketId = onlineUsers.get(userId)   
+   const removedSocketId = onlineUsers.get(userId.toString())  
+   io.sockets.sockets.get(removedSocketId)?.leave(roomId) 
   if (removedSocketId) io.to(removedSocketId).emit('removedFromGroup', { chatId })
 
  
@@ -246,9 +252,11 @@ chat.groupAdmin = remaining[0]
 
     const io = req.app.get('io');
     const onlineUsers = req.app.get('onlineUsers');
+    const roomId = chat._id.toString()
 if(io && onlineUsers){
     chat.participants.forEach((user)=>{
     const socketId = onlineUsers.get(user._id.toString())
+    io.sockets.sockets.get(socketId)?.leave(roomId)
 if(socketId) io.to(socketId).emit('groupLeft', {chatId,participants:chat.participants,groupAdmin:chat.groupAdmin})
     })
 
@@ -257,6 +265,7 @@ if(socketId) io.to(socketId).emit('groupLeft', {chatId,participants:chat.partici
 
     return res.status(200).json(new ApiResponse(200, chat, "Left group successfully"));
 }))
+
 
 export{
     accessChat,

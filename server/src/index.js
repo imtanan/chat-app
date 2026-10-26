@@ -4,10 +4,12 @@ dotenv.config({
 })
 import jwt from 'jsonwebtoken'
 import {User} from './models/user.model.js'
+import {Chat} from './models/chat.model.js'
 import connectDB from './db/index.js'
 import {createServer} from 'http'
 import {Server} from 'socket.io'
 import { app } from './app.js'
+import { isDataView } from "util/types";
 
 
 const httpServer = createServer(app)//when we are not using socket, express does this internally without showing us when we do app.listen....but when using socket, we need this httpServer for putting in io thats why we have to explicitly assign it in this case....Purpose: its purpose is to create a server where app could listen to connect an HTTP SERVER for apis
@@ -54,13 +56,16 @@ const token = cookieHeader
 
 const onlineUsers = new Map()
 app.set('onlineUsers',onlineUsers )
-io.on('connection', (socket)=>{
+io.on('connection', async(socket)=>{
    
     onlineUsers.set(socket.user._id.toString(),socket.id)
    
     io.emit('userOnline', socket.user._id.toString())
     console.log("🟢 USER CAME ONLINE:",  socket.user._id.toString())
     socket.emit('showOnlineUsers',Array.from(onlineUsers.keys()))
+
+    // const chats = await Chat.find({participants:socket.user._id}).select('_id')
+    // chats.forEach((c)=>socket.join(c._id.toString()))
     socket.on('joinChat',(chatId)=>{
          socket.join(chatId)
          console.log(`User ${socket.user.username} has joined the room: ${chatId}`)
@@ -72,6 +77,7 @@ io.on('connection', (socket)=>{
         })
         socket.on('typing', (chatId) => {
              if (!socket.rooms.has(chatId)) return
+
             // broadcast to the room, excluding yourself — which method does that?
          socket.to(chatId).emit("typing",{
             chatId,
