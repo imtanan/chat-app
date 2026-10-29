@@ -1,6 +1,6 @@
 import  {useState} from 'react'
 import api from '../api/axios.js'
-function Login({onLoginSuccess}) {
+function Login({onLoginSuccess,setShowForgot}) {
 const [email, setEmail] = useState('');
 const [password, setPassword] = useState('');
 const [error, setError] = useState('');
@@ -13,7 +13,7 @@ const handleSubmit = async(e)=>{
     const res = await api.post("users/login",{email,password})
     onLoginSuccess(res.data?.data?.user)
     }catch(err){
-        console.log(err.response.data);
+        
         setError(err.response?.data?.message)
     }finally{
         setLoading(false)
@@ -34,7 +34,7 @@ const handleSubmit = async(e)=>{
     <input className="bg-[#0b0d17] w-full text-sm rounded-lg px-[14px] py-[11px] text-white placeholder:text-[#6b7491] outline-none focus:border-violet-600 transition-colors border border-[#1E2235]" type="password" value={password}onChange={(e)=>setPassword(e.target.value)} placeholder="••••••••"/>
 </div>
     <div className="flex justify-end">
-        <a href="#" className="text-sm text-violet-600 hover:underline">Forgot password?</a>
+        <button type="button" onClick={() => setShowForgot(true)} className="text-sm text-violet-600 hover:underline cursor-pointer">Forgot password?</button>
     </div>
 
     <button type="submit" disabled={loading}  className="w-full bg-gradient-to-r from-violet-600 to-violet-800 text-white font-semibold py-3 rounded-lg hover:opacity-90 transition-opacity">

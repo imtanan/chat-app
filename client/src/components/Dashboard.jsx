@@ -15,9 +15,7 @@ function Dashboard({user,setUser}) {
 
 const {socket} = useSocket()
 
-useEffect(() => {
-  console.log('CHATS CHANGED:', chats.map(c => c.avatar))
-}, [chats])
+
 
 
     useEffect(()=>{

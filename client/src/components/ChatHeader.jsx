@@ -3,25 +3,29 @@ import { useState,useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import {useSocket} from '../context/useSocket.js'
 
-function ChatHeader({currentChat,setGroupInfo,otherParticipant}) {
+function ChatHeader({currentChat,user,setGroupInfo}) {
   const {onlineUsers,socket} = useSocket()
   const [typingUsers, setTypingUsers] = useState({})
-
+const otherParticipant = currentChat?.participants.find(
+    p => p._id !== user._id
+  )
 useEffect(()=>{
   if(!socket) return
   const onTyping = ({chatId,userId,username})=>{
-        if (chatId !== currentChat?._id) return
+    if (chatId !== currentChat?._id) return
+  
         setTypingUsers((prev)=>({...prev,[userId]:username}))
-  }
-
-  const onStop=({chatId, userId})=>{
-if (chatId !== currentChat?._id) return
- 
-setTypingUsers((prev)=>{
-  const {[userId]: _, ...rest} =prev
-  return rest
-})}
-
+      }
+      
+      
+      const onStop=({chatId, userId})=>{
+        if (chatId !== currentChat?._id) return
+        setTypingUsers((prev)=>{
+          const {[userId]: _, ...rest} =prev
+          return rest
+        })}
+        
+       
     
   
 
@@ -33,16 +37,16 @@ setTypingUsers((prev)=>{
     socket.off('typing', onTyping)
     socket.off('stopTyping', onStop)
   }
-},[socket,currentChat._id])
+},[socket,currentChat?._id])
 useEffect(() => { setTypingUsers({}) }, [currentChat?._id])
 
 const typers = Object.values(typingUsers)
 
 
 let typingText=''
-if(typers.length>0) {
+if(currentChat && typers.length>0) {
   if(!currentChat.isGroupChat) typingText="typing..."
-  else if(typers.length ===1) typingText = `${typers[0]} is typing`
+  else if(typers.length ===1) typingText = `${typers[0]} is typing...`
   else if(typers.length ===2) typingText = `${typers[0]} and ${typers[1]} are typing...`
   else typingText='Several people are typing...'
 }
@@ -59,7 +63,7 @@ const displayName = currentChat?.isGroupChat ? currentChat?.chatName : otherPart
      </div>
      <div className='flex flex-col mt-4'>
         <span className='text-white text-sm font-semibold'>{displayName}</span>
-        (typingText?(<p className='text-xs text-violet-400'>{typingText}</p>):( <p className={`text-xs  ${isOnline?'text-green-500':'text-gray-500' }`}>{currentChat?.isGroupChat ? `${currentChat.participants.length} members` : isOnline? "Active Now" : "Offline"}</p>))
+       { (typingText?(<p className='text-xs text-violet-400'>{typingText}</p>):( <p className={`text-xs  ${isOnline?'text-green-500':'text-gray-500' }`}>{`${currentChat.participants.length} members`}</p>))}
         </div>
         <ChevronDown className="w-4 h-4 text-[#6b7491] ml-2"/>
         </button>
@@ -72,7 +76,7 @@ const displayName = currentChat?.isGroupChat ? currentChat?.chatName : otherPart
      </div>
      <div className='flex flex-col mt-4'>
         <span className='text-white text-sm font-semibold'>{displayName}</span>
-         <p className={`text-xs  ${isOnline?'text-green-500':'text-gray-500' }`}>{currentChat?.isGroupChat ? `${currentChat.participants.length} members` : isOnline? "Active Now" : "Offline"}</p>
+       { (typingText?(<p className='text-xs text-violet-400'>{typingText}</p>): ( <p className={`text-xs  ${isOnline?'text-green-500':'text-gray-500' }`}>{ isOnline? "Active Now" : "Offline"}</p>))}
         </div>
         
         

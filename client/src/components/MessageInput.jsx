@@ -14,7 +14,7 @@ function MessageInput({currentChat, setLatestFlag}) {
     e.preventDefault()
     setLoading(true)
     try{
-          console.log("1. SEND FUNCTION STARTED")
+          
    await api.post("messages/send",{
       chatId:currentChat?._id,
       content:message,  
@@ -24,7 +24,7 @@ function MessageInput({currentChat, setLatestFlag}) {
 socket.emit('stopTyping', currentChat._id)
     
     setMessage("")
-   setLatestFlag(true)
+   
   }catch(err){
     console.log(err)
   }finally{
@@ -42,11 +42,12 @@ socket.emit('stopTyping', currentChat._id)
 
     const handleChange=(e)=>{
       setMessage(e.target.value)
-      socket.emit('typing', currentChat._id)
+      if (!currentChat?._id) return;
+      socket.emit('typing', currentChat?._id)
 
      clearTimeout(typingTimer.current)
      typingTimer.current=setTimeout(()=>{
-           socket.emit('stopTyping',currentChat._id)
+           socket.emit('stopTyping',currentChat?._id)
      },2000)
 
     }

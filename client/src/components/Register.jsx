@@ -23,11 +23,10 @@ const handleSubmit = async(e)=>{
 }
       const res = await api.post("users/register",formData)
       onRegisterSuccess(res.data.data)
-      console.log("REGISTERED USER:", res.data.data.user);
-      console.log("FULL REGISTER RESPONSE:", res.data);
+      
   }catch(err){
     console.log('Full Error', err)
-    console.log('RESPONSE DATA:', err.response?.data)
+    
     const message = err.response?.data?.errors?.[0]?.msg || err.response?.data?.message || "Something went wrong";
     setError(message)
   }finally{

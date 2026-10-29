@@ -13,7 +13,7 @@ const SocketProvider = ({children,user})=> {
   useEffect(()=>{
      if (!user) return;
 
-  const newSocket= io('http://localhost:8000', {
+  const newSocket= io(import.meta.env.VITE_SOCKET_URL, {
     withCredentials: true,
   })
 

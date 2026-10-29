@@ -9,9 +9,10 @@ function Sidebar({user,setUser,chats,setChats,setCurrentChat,currentChat,setShow
    const [results, setResults] = useState([]);
    
     const [query, setQuery] = useState('');
-    const[isSelected, setIsSelected] = useState(false);
+ 
     const {onlineUsers, socket} = useSocket()
     
+
 
     useEffect(()=>{
       api.get('chats/getUserChats').then(res=>setChats(res.data.data)).catch(err=>console.log(err))
@@ -19,18 +20,23 @@ function Sidebar({user,setUser,chats,setChats,setCurrentChat,currentChat,setShow
 
 useEffect(()=>{
     if (!socket) return;
-      socket.on("newMessage", (message)=>{
-        setChats(prevChats=> prevChats.map(chat=>
-          chat._id === message?.chat
-          ? {...chat, latestMessage:message}
-          : chat
-        )
-      );
-      });
-
-      socket.on('newGroupCreated',(group)=>{
-        setChats((prevChats)=>[...prevChats,group])
+    const onNewMessage=(message)=>{
+      const chatId= message?.chat?._id ?? message?.chat
+          if (chatId !== currentChat?._id) return 
+      setChats((prev)=>{
+        const chat = prev.find((c)=>c._id === chatId)
+        if(!chat) return prev
+        return [{...chat, latestMessage:message}, ...prev.filter((c)=>c._id !==chatId)]
       })
+    }
+
+    const onNewGroup=(group)=>{
+      setChats((prev)=>(prev.some((c)=>c._id === group._id)?prev:[group,...prev]))
+    }
+
+
+    socket.on("newMessage",onNewMessage);
+      socket.on('newGroupCreated',onNewGroup)
       
       return()=>{
          socket.off("newMessage");
@@ -185,12 +191,13 @@ console.log(err)
   
   const isOnline = !chat?.isGroupChat && onlineUsers?.includes(participant._id)
 
-console.log("ONLINE USERS CHANGED:", onlineUsers);
     const avatarSrc = chat.isGroupChat ? (chat.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${chat.chatName}`) : participant.avatar;
    const displayName = chat.isGroupChat ? chat.chatName : participant.username;
+
+   
   return  (
     
-  <button key={chat._id} onClick={()=>{setCurrentChat(chat); setIsSelected(true)}} className={`flex items-center gap-3 px-3 mx-2 py-3 rounded-lg ${currentChat?._id=== chat._id? "bg-[#181A28]  outline outline-1 outline-[#7C3AED33]" : "hover:bg-[#13151F]"}   cursor-pointer transition-colors text-left`}>
+  <button key={chat._id} onClick={()=>{setCurrentChat(chat);}} className={`flex items-center gap-3 px-3 mx-2 py-3 rounded-lg ${currentChat?._id=== chat._id? "bg-[#181A28]  outline outline-1 outline-[#7C3AED33]" : "hover:bg-[#13151F]"}   cursor-pointer transition-colors text-left`}>
    
 <div className='relative'>
   <img  src={avatarSrc}

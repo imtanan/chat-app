@@ -44,7 +44,7 @@ const handleSave = async()=>{
   const avatarRes = await api.patch("users/avatar", formData)
    updatedData.avatar = avatarRes.data.data.avatar
   }
-  console.log("Form Data:", formData) 
+  
   if(!avatarFile && !username && !email){
     setError("Please make changes before saving.")
     setLoading(false)
@@ -79,8 +79,8 @@ const handleChangePassword = async()=>{
   }
 
   try{
-  const response = await api.post("users/change-password", {oldPassword,newPassword})
-  console.log(response.data.data)
+   await api.post("users/change-password", {oldPassword,newPassword})
+  
   setLoading(true)
   setSuccess(true)
   setOldPassword('')

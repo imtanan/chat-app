@@ -216,7 +216,7 @@ const addMember=async(user)=>{
             const isMe  = participant?._id === user?._id
             const isParticipantAdmin = participant?._id === adminId;
             const avatarSrc= participant?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${participant?.username}`
-            console.log('participant', participant)
+            
             return(
               <>
               <div key={participant?._id} className="  flex items-center gap-3 py-3 px-3 rounded-[10px] border border-[#1E2235] bg-[#0b0d17]">
@@ -246,7 +246,7 @@ const addMember=async(user)=>{
             
             <button disabled={loading} onClick={handleLeave} className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#160B0B] text-[#EF4444] hover:text-[#FFFFFF] text-sm font-medium hover:bg-[#EF4444] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
        <LogOut className="w-4 h-4" />
-        { loading? "Leaving...":"Leave Group(transfers admin)"}
+        { loading? "Leaving...":iAmAdmin?"Leave Group(transfers admin)":"Leave Group"}
         </button>
          </div>
       </div>
