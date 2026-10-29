@@ -8,12 +8,12 @@ import {v2 as cloudinary} from "cloudinary"
 import {uploadOnCloudinary} from '../utils/cloudinary.js';
 import { sendEmail } from '../utils/sendEmail.js'
 import fs from 'fs';
+import crypto from 'crypto'
 import mongoose from 'mongoose'
 
 const generateAccessAndRefreshTokens=async(userId)=>{
    try{
-        console.log("ACCESS SECRET:", process.env.ACCESS_TOKEN_SECRET);
-    console.log("REFRESH SECRET:", process.env.REFRESH_TOKEN_SECRET);
+       
     const user = await User.findById(userId)
     if(!user){
       throw new ApiError(404, "User not found for token generation")
@@ -26,7 +26,7 @@ const generateAccessAndRefreshTokens=async(userId)=>{
     })
     return {accessToken, refreshToken}
    }catch(error){
-      console.log("Token Error", error)
+      
       throw new ApiError(500, "Something went wrong while generating access and refresh token")
    }
 }
@@ -38,8 +38,10 @@ const registerUser = asyncHandler(async(req,res)=>{
       //check for user creation
       // return the response.
 
-      const {username, email, password} = req.body;
-      console.log("email", email);
+      const {username, password} = req.body;
+      const email = req.body.email.toLowerCase().trim()
+      
+
 
     
      const existedUser = await User.findOne({
@@ -273,9 +275,13 @@ const updateUserAvatar = (asyncHandler(async(req,res)=>{
       throw new ApiError(500, "Something went wrong while updating the avatar")
    }
    if(getAvatarPublicId){
+       try {
     const removeOldAvatar = await cloudinary.uploader.destroy(getAvatarPublicId)
   if(removeOldAvatar.result !== "ok"){
    console.log("Unable to remove the old  avatar from cloudinary")
+  }
+}  catch (err) {
+    console.log("Cloudinary cleanup failed:", err.message)
   }
    }
    res
@@ -359,19 +365,64 @@ const searchUsers=(asyncHandler(async(req,res)=>{
 }))
 
 const forgotPassword = (asyncHandler(async(req,res)=>{
-   const {email} = req.body
-   const user = await User.find({email})
+     
+   const email = req.body.email.toLowerCase().trim()
+   const user = await User.findOne({email})
+      
    if(!user){
-      throw new ApiError(404, "User with this email not found")
+       return res.status(200).json(new ApiResponse(200, null, "If an account exists, we sent a   link"))
+
    }
    const token = await user.generateResetToken()
+    
+   try{
    await sendEmail({
       to:user.email,
       subject: 'Reset your password',
       html: `<p>Click the link to reset your password:</p>
-       <a href="${process.env.FRONTEND_URL}/reset-password/${token}">Reset password</a>`
+       <a href="${process.env.FRONTEND_URL}/reset-password/${token}">Reset password</a>
+       <p style="color:#888;font-size:12px">This link expires in 15 minutes. Requested at ${new Date().toLocaleTimeString()}.</p>`
    })
+    
+}catch{
+   user.resetTokenHash=undefined,
+   user.resetTokenExpiry=undefined,
+   await user.save({ validateBeforeSave: false })
+  throw new ApiError(500, "Could not send the reset email. Try again later.")
+}
+
+return res.status(200).json(new ApiResponse(200, null, "If an account exists, we sent a reset link"))
 }))
+const resetPassword = asyncHandler(async (req, res) => {
+  const { token } = req.params
+  const { password, confirmPassword } = req.body
+
+  if (!password || password !== confirmPassword) {
+    throw new ApiError(400, "Password and confirm password do not match")
+  }
+
+  // hash the token from the URL the same way it was hashed when it was created
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex')
+
+  const user = await User.findOne({
+    resetTokenHash: hashedToken,
+    resetTokenExpiry: { $gt: Date.now() },   // still valid
+  })
+
+  if (!user) {
+    throw new ApiError(400, "Reset link is invalid or has expired")
+  }
+
+  user.password = password            // plain text: your pre('save') hook hashes it
+  user.resetTokenHash = undefined     // single use
+  user.resetTokenExpiry = undefined
+  user.refreshToken = undefined       // log out other sessions
+  await user.save()
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Password reset successful. Please log in."))
+})
 
 export {
       registerUser,
@@ -385,4 +436,6 @@ export {
       updateUserAvatar,
       updateGroupAvatar,
       searchUsers,
+      forgotPassword,
+      resetPassword,
 }

@@ -28,7 +28,7 @@ const sendMessage = (asyncHandler(async(req,res)=>{
             chat:chatId,
            })
            const populatedMessage = (await message.populate("sender","-password -refreshToken"))
-           console.log(populatedMessage)
+          
               const io = req.app.get('io')
            io.to(chatId).emit("newMessage",populatedMessage)
            await Chat.findByIdAndUpdate(chatId,{latestMessage:message._id})

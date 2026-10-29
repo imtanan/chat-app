@@ -39,7 +39,7 @@ const token = cookieHeader
     const decoded = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
     
     const user = await User.findById(decoded._id).select("-password -refreshToken");
-       console.log("👤 USER:", user?._id);
+      
     if(!user){
          
         throw new Error("User not found");
@@ -61,14 +61,14 @@ io.on('connection', async(socket)=>{
     onlineUsers.set(socket.user._id.toString(),socket.id)
    
     io.emit('userOnline', socket.user._id.toString())
-    console.log("🟢 USER CAME ONLINE:",  socket.user._id.toString())
+  
     socket.emit('showOnlineUsers',Array.from(onlineUsers.keys()))
 
     // const chats = await Chat.find({participants:socket.user._id}).select('_id')
     // chats.forEach((c)=>socket.join(c._id.toString()))
     socket.on('joinChat',(chatId)=>{
          socket.join(chatId)
-         console.log(`User ${socket.user.username} has joined the room: ${chatId}`)
+        
 
          socket.to(chatId).emit('userJoined',{
             username:socket.user.username,
@@ -100,13 +100,13 @@ socket.on('disconnect',()=>{
         io.emit('userOffline',socket.user._id.toString())
           io.emit('showOnlineUsers',Array.from(onlineUsers.keys()))
     })
-    console.log('A User connected: ', socket.id)
+    
 })
 
 connectDB()
 .then(()=>{
     httpServer.listen(process.env.PORT || 8000, "0.0.0.0", ()=>{
-     console.log(`⚙️ Server is running at port: ${process.env.PORT || 8000}`)
+   
     })
 })
 .catch((err)=>{

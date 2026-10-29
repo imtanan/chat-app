@@ -34,6 +34,13 @@ export const loginValidator= [
         
     ]
 
+    export const forgotPasswordValidator=[
+      body('email')
+      .trim()
+        .notEmpty().withMessage("Email is required")
+        .isEmail().withMessage("Invalid email format"),
+    ]
+
 export const changePasswordValidator= [
   body('oldPassword')
   .trim()
@@ -41,5 +48,9 @@ export const changePasswordValidator= [
     body('newPassword')
     .trim()
     .notEmpty().withMessage("New Password is required")  
+]
+export const resetPasswordValidator = [
+  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
+  body('confirmPassword').notEmpty().withMessage('Confirm password is required'),
 ]
 

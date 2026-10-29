@@ -9,12 +9,14 @@ import{
     updateUserAvatar,
     updateGroupAvatar,
     getCurrentUser,
-    searchUsers
+    searchUsers,
+    forgotPassword,
+    resetPassword,
 } from '../controllers/user.controller.js'
 import {upload} from '../middlewares/multer.middleware.js'
 import {verifyJWT} from '../middlewares/auth.middleware.js'
 import validate from '../middlewares/validate.middleware.js'
-import {loginValidator,registerValidator, updateAccountValidator,changePasswordValidator} from '../validators/user.validator.js'
+import {loginValidator,registerValidator, updateAccountValidator,changePasswordValidator,forgotPasswordValidator,resetPasswordValidator} from '../validators/user.validator.js'
 
 const router = Router()
 router.route('/register').post(
@@ -32,5 +34,7 @@ router.route('/update-account').patch(verifyJWT,updateAccountValidator,validate,
 router.route('/avatar').patch(verifyJWT,upload.single("avatar"),updateUserAvatar)
 router.route('/group-avatar/:chatId').patch(verifyJWT,upload.single("avatar"),updateGroupAvatar)
 router.route('/search').get(verifyJWT,searchUsers)
+router.route('/forgot-password').post(forgotPasswordValidator, validate, forgotPassword)
+router.route('/reset-password/:token').post(resetPasswordValidator, validate, resetPassword)
 
 export default router
