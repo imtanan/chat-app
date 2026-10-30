@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "cloudinary": "^2.10.0",
-    "express-validator": "^7.3.2",
-    "multer": "^2.2.0"
-  }
-}
