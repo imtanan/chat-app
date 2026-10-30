@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
+    "start": "node src/index.js",
     "dev": "nodemon -r dotenv/config src/index.js"
   },
   "keywords": [],
@@ -14,14 +14,17 @@
   "type": "module",
   "dependencies": {
     "bcrypt": "^6.0.0",
+    "cloudinary": "^2.11.0",
     "cookie": "^2.0.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-validator": "^7.3.2",
     "jsonwebtoken": "^9.0.3",
     "mongodb": "^7.4.0",
     "mongoose": "^9.7.2",
+    "multer": "^2.5.0",
     "nodemailer": "^10.2.1",
     "socket.io": "^4.8.3"
   },
