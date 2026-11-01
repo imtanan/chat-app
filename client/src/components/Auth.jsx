@@ -30,7 +30,7 @@ setMessage("If an account exists, we sent a reset link.")
   return (
     <>
 
- <div className="auth-bg  flex flex-col  items-center gap-2 min-h-screen pt-20 ">
+ <div className="auth-bg  flex flex-col  items-center gap-2 h-full pt-20 overflow-y-auto">
   <div className="text-center mb-2">
  <div className="inline-flex items-center gap-1.5 mb-2">
   <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center">
@@ -42,13 +42,13 @@ setMessage("If an account exists, we sent a reset link.")
     PULSE<span className="text-violet-600">.</span>
   </span>
 </div>
-  {showForgot ? (<p className="font-['Inter',sans-serif] text-[#6B7491] text-[13px] m-0">Securely recover access to your account.</p>):(isLogin? (<p className="font-['Inter',sans-serif] text-[#6B7491] text-[13px] m-0">Welcome back. Sign in to continue.</p> ): (<p className="font-['Inter',sans-serif] text-[#6B7491] text-[13px] m-0">Create your account to get started.</p>))}
+  {showForgot ? (<p className="font-['Inter',sans-serif] text-[#6B7491] text-base m-0">Securely recover access to your account.</p>):(isLogin? (<p className="font-['Inter',sans-serif] text-[#6B7491] text-base m-0">Welcome back. Sign in to continue.</p> ): (<p className="font-['Inter',sans-serif] text-[#6B7491] text-base m-0">Create your account to get started.</p>))}
  
 </div>
 
   {/* CARD */}
   {showForgot ? (
-     <div className="bg-[#111320] rounded-[20px] p-8 w-full max-w-[420px] border border-[#1E2235] shadow-[0_24px_64px_rgba(0,0,0,0.5)]">
+     <div className="bg-[#111320] rounded-xl p-8 w-full max-w-md border border-[#1E2235] shadow-[0_24px_64px_rgba(0,0,0,0.5)]">
   <form onSubmit={handleForgot} className="space-y-5">
       <div>
       <h2 className="text-xl font-bold text-white">Forgot password?</h2>
@@ -95,7 +95,7 @@ setMessage("If an account exists, we sent a reset link.")
   </form>
   </div>
 ) :(
-  <div className="bg-[#111320] rounded-[20px] p-8 w-full max-w-[420px] border border-[#1E2235] shadow-[0_24px_64px_rgba(0,0,0,0.5)]">
+  <div className="bg-[#111320] rounded-2xl p-8 w-full max-w-md border border-[#1E2235] shadow-[0_24px_64px_rgba(0,0,0,0.5)]">
 
     <div className="relative h-12 rounded-xl bg-[#0b0d17] p-1 overflow-hidden">
       <div
@@ -105,13 +105,13 @@ setMessage("If an account exists, we sent a reset link.")
       />
       <div className="relative flex w-full h-full z-10">
         <button
-          className={`rounded text-[15px] py-2 w-1/2 font-outfit transition-colors duration-200 ${isLogin ? "text-white" : "text-gray-500"}`}
+          className={`rounded text-base py-2 w-1/2 font-outfit transition-colors duration-200 ${isLogin ? "text-white" : "text-gray-500"}`}
           onClick={() => setIsLogin(true)}
         >
           Sign In
         </button>
         <button
-          className={`rounded text-[15px] py-2 w-1/2 font-outfit transition-colors duration-200 ${isLogin ? "text-gray-500" : "text-white"}`}
+          className={`rounded text-base py-2 w-1/2 font-outfit transition-colors duration-200 ${isLogin ? "text-gray-500" : "text-white"}`}
           onClick={() => setIsLogin(false)}
         >
           Sign Up

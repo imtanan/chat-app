@@ -125,15 +125,16 @@ const addMember=async(user)=>{
     }
   }
   return (
-    <div className="fixed flex items-center justify-center inset-0 z-50 backdrop-blur-sm bg-black/40" onClick={onClose}>
-      <div className="  bg-[#0d0f1a] border border-[#1E2235] rounded-2xl w-full max-w-md mx-4 " onClick={(e)=>e.stopPropagation()}>
-           <div className="flex items-center justify-between pb-3 px-6 pb-3 pt-6">
+    <div className="fixed flex items-center justify-center inset-0 z-50 p-4 backdrop-blur-sm bg-black/40" onClick={onClose}>
+      <div className="  bg-[#0d0f1a] border border-[#1E2235] rounded-3xl w-full max-w-md max-h-full flex flex-col overflow-hidden " onClick={(e)=>e.stopPropagation()}>
+           <div className="flex items-center justify-between px-6 pb-3 pt-6 shrink-0">
            <h2 className="font-bold text-white m-0 text-lg"> Group Info</h2>
            <button className="text-[#6b7491] hover:text-white" onClick={onClose}>
             <X  className='w-5 h-5' />
            </button>
            </div>
 
+<div className="overflow-y-auto custom-scrollbar flex-1">
           <div className="flex flex-col items-center gap-2 ">
             <div className="border-2 border-violet-600 rounded-full"  onClick={() => fileInputRef.current?.click()}>
          <div className="w-28 h-28 rounded-full bg-[#0b0d17] border border-[#1E2235] flex items-center justify-center overflow-hidden cursor-pointer">
@@ -149,7 +150,7 @@ const addMember=async(user)=>{
       <div className="px-6 py-5 space-y-4">
         <div className="gap-4 flex  items-end">
    <div className="text-end min-w-0 flex-1">
-            <label className='block text-[14px] text-start font-semibold text-[#6b7491] tracking-[0.08em] uppercase ml-1 mb-2'>Group Name</label>
+            <label className='block text-sm text-start font-semibold text-[#6b7491] tracking-[0.08em] uppercase ml-1 mb-2'>Group Name</label>
            <input 
            onChange={(e) => setNaming(e.target.value)}
            value={naming??currentChat.chatName} 
@@ -178,7 +179,7 @@ const addMember=async(user)=>{
               />
              {query && (
               
-    <div className="absolute top-full left-0 right-0 mt-2 p-4 bg-[#151a2e] rounded-[10px]  z-20 border border-violet-500/30  max-h-60 overflow-hidden shadow-xl shadow-black/50 space-y-4">
+    <div className="absolute top-full left-0 right-0 mt-2 p-4 bg-[#0b0d17] rounded-lg  z-20 border border-[#1E2235]   max-h-60 overflow-hidden shadow-lg  space-y-4">
       {lists.length>0?(
         
       lists.map((user) => (
@@ -208,7 +209,7 @@ const addMember=async(user)=>{
   )}
           </div>
           </div>
-           <span className=' text-[14px] font-semibold text-[#6b7491] tracking-[0.08em] uppercase flex items-center text-start ml-7 mt-4'>Participants .{participants.length}</span>
+           <span className=' text-sm font-semibold text-[#6b7491] tracking-[0.08em] uppercase flex items-center text-start ml-7 mt-4'>Participants: {participants.length}</span>
          <div className="px-6 py-5 space-y-2">
           {
            
@@ -248,6 +249,7 @@ const addMember=async(user)=>{
        <LogOut className="w-4 h-4" />
         { loading? "Leaving...":iAmAdmin?"Leave Group(transfers admin)":"Leave Group"}
         </button>
+         </div>
          </div>
       </div>
     </div>

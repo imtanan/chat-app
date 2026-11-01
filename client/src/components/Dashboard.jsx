@@ -93,7 +93,7 @@ const onGroupUpdated = (chat)=>{
 },[socket])
 
      return (
-    <div className="h-screen flex">
+    <div className="h-full flex overflow-hidden">
         <Sidebar user={user} setUser={setUser} setShowModal={setShowModal} setGroupModal={setGroupModal} chats={chats} setChats={setChats} currentChat={currentChat} setCurrentChat={setCurrentChat}  />
       <ChatWindow currentChat={currentChat} setGroupInfo={setGroupInfo}    user={user} />
    {showModal && (<UpdateProfileModal user={user} setUser={setUser} onClose={() => setShowModal(false)} />

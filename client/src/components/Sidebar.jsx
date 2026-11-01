@@ -22,7 +22,7 @@ useEffect(()=>{
     if (!socket) return;
     const onNewMessage=(message)=>{
       const chatId= message?.chat?._id ?? message?.chat
-          if (chatId !== currentChat?._id) return 
+        
       setChats((prev)=>{
         const chat = prev.find((c)=>c._id === chatId)
         if(!chat) return prev
@@ -39,8 +39,8 @@ useEffect(()=>{
       socket.on('newGroupCreated',onNewGroup)
       
       return()=>{
-         socket.off("newMessage");
-         socket.off('newGroupCreated')
+      socket.off('newMessage', onNewMessage)
+socket.off('newGroupCreated', onNewGroup)
         }
 }, [socket]);
 
@@ -101,7 +101,7 @@ console.log(err)
   //  socket area
   
   return (
-    <div className="w-[320px] shrink-0 h-screen bg-[#111320] border-r border-[#1E2235] flex flex-col">
+    <div className="w-95 shrink-0 h-full bg-[#111320] border-r border-[#1E2235] flex flex-col">
  <div className="inline-flex items-center gap-1.5 mb-2 mt-6 ml-3.5">
   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -182,7 +182,7 @@ console.log(err)
 </div>
 
 {/* User Chats */}
-<div className="flex flex-col overflow-y-auto flex-1">
+<div className="flex flex-col overflow-y-auto flex-1 custom-scrollbar">
  {
   chats && chats.map((chat)=>{
   // condition 1 opening

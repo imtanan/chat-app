@@ -46,9 +46,9 @@ setError('Something went wrong please try again')
 
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose} > 
-     <div className='bg-[#0d0f1a] border border-[#1E2235] rounded-2xl w-full max-w-md mx-4 ' onClick={(e)=>e.stopPropagation()} >
-        <div className="flex items-center justify-between px-6 pb-0 mb-0 pt-6" >
+    <div className="fixed inset-0 z-50 p-4 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onClose} > 
+     <div className='bg-[#0d0f1a] border border-[#1E2235] rounded-3xl w-full max-w-md max-h-full flex flex-col overflow-hidden ' onClick={(e)=>e.stopPropagation()} >
+        <div className="flex items-center justify-between px-6 pb-0 mb-0 pt-6 shrink-0" >
               <h2 className="text-white font-bold text-lg m-0" >New Group</h2>
               <button className="text-[#6b7491] hover:text-white" onClick={onClose} > 
                 <X className="w-5 h-5" />
@@ -58,15 +58,16 @@ setError('Something went wrong please try again')
              <span className="block px-6 pb-4 text-[#6b7491] text-xs">Select at least 2 participants</span>
             
               {/* Group form */}
+              <div className="overflow-y-auto custom-scrollbar flex-1">
          <div className="px-6 py-5 mt-1 space-y-10">
              {error &&<p className="text-red-500 text-sm">{error}</p>}
        <div>
-            <label className='block text-[14px] text-start font-semibold text-[#6b7491] tracking-[0.08em] uppercase ml-1 mb-2'>Group Name</label>
+            <label className='block text-sm text-start font-semibold text-[#6b7491] tracking-[0.08em] uppercase ml-1 mb-2'>Group Name</label>
            <input 
            value={groupName} 
            onChange={(e)=>setGroupName(e.target.value)}
            placeholder="e.g Design Team"
-           className="w-full  px-[8px]  py-[11px] text-sm border border-[#1E2235] bg-[#0b0d17] rounded-[10px] text-white outline-none focus:border-violet-600"
+           className="w-full  px-2  py-3 text-sm border border-[#1E2235] bg-[#0b0d17] rounded-xl text-white outline-none focus:border-violet-600"
            /> 
          </div>
        <div className="relative mt-2 mb-4 w-full mx-auto"> 
@@ -87,13 +88,13 @@ setError('Something went wrong please try again')
             className=" w-8 h-8 rounded-full"
           />
           <span className='text-xs text-white'>{user.username}</span>
-          <X className='relative cursor-pointer' onClick={()=>toggleParticipant(user)} />
+          <X className='w-4 h-4 relative cursor-pointer hover:text-red-500' onClick={()=>toggleParticipant(user)} />
             </div>
           ))}
           </div>
          )}
          {query && (result.length>0 ?(
-          <div className="mt-2 space-y-1 bg-gray-600/40">
+          <div className="top-full left-0 right-0 mt-2 max-h-60 overflow-y-auto shadow-lg space-y-4 bg-[#0b0d17] rounded-lg  z-20 border border-[#1E2235]">
             { result.map((user)=>{
              const isSelected = selectedParticipants.some((p)=> p._id === user._id)
               return(<div
@@ -145,6 +146,7 @@ setError('Something went wrong please try again')
           </button>
         </div>
 
+        </div>
         </div>
      </div>
     </div>

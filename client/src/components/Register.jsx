@@ -56,7 +56,7 @@ const handleFileChange = (e) => {
   <div className="w-28 h-28 rounded-full bg-[#0b0d17] border border-[#1E2235] flex items-center justify-center overflow-hidden">
 {avatarPreview ? (<img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />) : (<span className="text-[#6b7491] text-xs">No Photo</span>)}
   </div>
-<label className='text-xs text-violet-600 cursor-pointer'>
+<label className='text-sm text-violet-600 cursor-pointer'>
   Upload Photo (optional)
   <input type="file" disabled={loading} className="hidden" accept="image/*" onChange={handleFileChange} />
 </label>
@@ -64,18 +64,18 @@ const handleFileChange = (e) => {
 
 
     <div className="flex flex-col gap-1.5">
-    <label className="block tracking-[0.08em] font-semibold text-[11px] self-start  uppercase  text-[#6b7491]">Username</label>
-    <input className="bg-[#0b0d17] w-full text-sm px-[14px] py-[11px]  rounded-lg text-white placeholder:text-[#6b7491] outline-none focus:border-violet-600 transition-colors border border-[#1E2235]" type="text" value={username} onChange={(e)=>setUsername(e.target.value)} placeholder="your username"/>
+    <label className="block tracking-[0.08em] font-semibold text-sm self-start  uppercase  text-[#6b7491]">Username</label>
+    <input className="bg-[#0b0d17] w-full text-sm rounded-lg px-2 py-3 text-white placeholder:text-[#6b7491] outline-none focus:border-violet-600 transition-colors border border-[#1E2235]" type="text" value={username} onChange={(e)=>setUsername(e.target.value)} placeholder="your username"/>
 
 </div>
     <div className="flex flex-col gap-1.5">
-    <label className="block tracking-[0.08em] font-semibold text-[11px] self-start  uppercase  text-[#6b7491]">Email</label>
-    <input className="bg-[#0b0d17] w-full text-sm px-[14px] py-[11px] rounded-lg text-white placeholder:text-[#6b7491] outline-none focus:border-violet-600 transition-colors border border-[#1E2235]" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="you@example.com"/>
+    <label className="block tracking-[0.08em] font-semibold text-sm self-start  uppercase  text-[#6b7491]">Email</label>
+    <input className="bg-[#0b0d17] w-full text-sm rounded-lg px-2 py-3 text-white placeholder:text-[#6b7491] outline-none focus:border-violet-600 transition-colors border border-[#1E2235]" type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="you@example.com"/>
 
 </div>
   <div className="flex flex-col gap-1.5">
-    <label className="block tracking-[0.08em] font-semibold text-[11px] self-start  uppercase  text-[#6b7491]">Password</label>
-    <input className="bg-[#0b0d17] w-full text-sm px-[14px] py-[11px] rounded-lg text-white placeholder:text-[#6b7491] outline-none focus:border-violet-600 transition-colors border border-[#1E2235]" type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="••••••••"/>
+    <label className="block tracking-[0.08em] font-semibold text-sm self-start  uppercase  text-[#6b7491]">Password</label>
+    <input className="bg-[#0b0d17] w-full text-sm rounded-lg px-2 py-3 text-white placeholder:text-[#6b7491] outline-none focus:border-violet-600 transition-colors border border-[#1E2235]" type="password" value={password} onChange={(e)=>setPassword(e.target.value)} placeholder="••••••••"/>
 </div>
  
 

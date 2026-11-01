@@ -117,7 +117,7 @@ const handleChangePassword = async()=>{
         </div>
 
         {/* Form */}
-        <div className="px-6 py-5 space-y-4">
+        <div className="px-6 py-3 space-y-4">
        {/* Icons + Slider Section */}
 <div className="-mx-6 border-b border-[#1E2235] px-6">
   {/* Icons + Text */}
@@ -129,8 +129,8 @@ const handleChangePassword = async()=>{
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="27"
-        height="27"
+        width="22"
+        height="22"
         viewBox="0 0 24 24"
         fill="none"
         stroke={selected === 0 ? "#7c3aed" : "#6b7491"}
@@ -162,8 +162,8 @@ const handleChangePassword = async()=>{
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        width="27"
-        height="27"
+        width="22"
+        height="22"
         viewBox="0 0 24 24"
         fill="none"
         stroke={selected === 1 ? "#7c3aed" : "#6b7491"}
@@ -202,20 +202,20 @@ const handleChangePassword = async()=>{
           </label>
 </div>
           <div>
-            <label className='block text-[14px] text-start font-semibold text-[#6b7491] tracking-[0.08em] uppercase ml-1 mb-2'>Username</label>
+            <label className='block text-sm text-start font-semibold text-[#6b7491] tracking-[0.08em] uppercase ml-1 mb-2'>Username</label>
            <input 
            value={username} 
            onChange={(e)=>setUsername(e.target.value)}
-           className="w-full  px-[8px]  py-[11px] text-sm border border-[#1E2235] bg-[#0b0d17] rounded-[10px] text-white outline-none focus:border-violet-600"
+           className="w-full  px-2  py-3 text-sm border border-[#1E2235] bg-[#0b0d17] rounded-xl text-white outline-none focus:border-violet-600"
            /> 
           </div>
           
           <div>
-            <label className="block text-[14px] text-start font-semibold text-[#6b7491] tracking-[0.08em] uppercase ml-1 mb-2">Email</label>
+            <label className="block text-sm text-start font-semibold text-[#6b7491] tracking-[0.08em] uppercase ml-1 mb-2">Email</label>
          <input 
          value={email}
          onChange={(e)=>setEmail(e.target.value)} 
-         className='w-full px-[8px] py-[11px] text-sm border border-[#1E2235] bg-[#0b0d17] rounded-[10px] text-white outline-none focus:border-violet-600'
+         className='w-full px-2 py-3 text-sm border border-[#1E2235] bg-[#0b0d17] rounded-xl text-white outline-none focus:border-violet-600'
          />
           </div>
              {/* Save Button */}
@@ -231,23 +231,23 @@ const handleChangePassword = async()=>{
 </>) : (
   <>
    <div>
-        <label className="block text-[14px] text-start font-semibold text-[#6b7491] tracking-[0.08em] uppercase ml-1 mb-2">Old Password</label>
+        <label className="block text-sm text-start font-semibold text-[#6b7491] tracking-[0.08em] uppercase ml-1 mb-2">Old Password</label>
         <input 
           type="password"
           value={oldPassword}
           onChange={(e)=>setOldPassword(e.target.value)} 
-          className='w-full px-[8px] py-[11px] text-sm border border-[#1E2235] bg-[#0b0d17] rounded-[10px] text-white outline-none focus:border-violet-600'
+          className='w-full px-2 py-3 text-sm border border-[#1E2235] bg-[#0b0d17] rounded-xl text-white outline-none focus:border-violet-600'
          
         />
       </div>
 
       <div>
-        <label className="block text-[14px] text-start font-semibold text-[#6b7491] tracking-[0.08em] uppercase ml-1 mb-2">New Password</label>
+        <label className="block text-sm text-start font-semibold text-[#6b7491] tracking-[0.08em] uppercase ml-1 mb-2">New Password</label>
         <input 
           type="password"
           value={newPassword}
           onChange={(e)=>setNewPassword(e.target.value)} 
-          className='w-full px-[8px] py-[11px] text-sm border border-[#1E2235] bg-[#0b0d17] rounded-[10px] text-white outline-none focus:border-violet-600'
+          className='w-full px-2 py-3 text-sm border border-[#1E2235] bg-[#0b0d17] rounded-xl text-white outline-none focus:border-violet-600'
           
         />
       </div>

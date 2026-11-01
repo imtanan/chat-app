@@ -9,7 +9,7 @@ import api from '../api/axios.js'
 function ChatWindow({ currentChat,setGroupInfo, user }) {
   const {socket, onlineUsers} = useSocket();
   const [messages, setMessages] = useState([])
-  const bottomRef = useRef(null)
+  const listRef = useRef(null)
 
 const NAME_COLORS = [
   'text-sky-400', 'text-emerald-400', 'text-amber-400', 'text-rose-400',
@@ -52,7 +52,9 @@ socket.on('newMessage', handleNewMessage)
   }, [currentChat,socket])
 
   useEffect(()=>{
-     bottomRef.current?.scrollIntoView({behavior:"smooth"})
+    const el = listRef.current
+    if(!el || messages.length ===0)return
+     el.scrollTo({top:el.scrollHeight, behavior:'smooth'})
   }, [messages])
 
   return (
@@ -63,7 +65,7 @@ socket.on('newMessage', handleNewMessage)
         <ChatHeader currentChat={currentChat} user={user} setGroupInfo={setGroupInfo} />
 
         {/* Messages */}
-        <div className="overflow-y-auto flex-1 px-7 custom-scrollbar">
+        <div ref={listRef} className="overflow-y-auto flex-1 px-7 custom-scrollbar">
 
           {messages.map((message) => {
             const isMine =
@@ -115,7 +117,7 @@ const color = NAME_COLORS[index % NAME_COLORS.length]
               </div>
             )
           })}
-      <div ref={bottomRef} />
+      
         </div>
 
         {/* Input */}
