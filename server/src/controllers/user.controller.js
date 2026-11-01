@@ -11,6 +11,9 @@ import fs from 'fs';
 import crypto from 'crypto'
 import mongoose from 'mongoose'
 
+
+const isProd = process.env.NODE_ENV === 'production'
+
 const generateAccessAndRefreshTokens=async(userId)=>{
    try{
        
@@ -115,7 +118,8 @@ const loginUser = asyncHandler(async(req,res)=>{
     )
     const options={
       httpOnly: true,
-      secure:true,
+      secure: isProd,                  
+      sameSite: isProd ? 'none' : 'lax', 
     }
     res
     .status(200)
@@ -146,7 +150,8 @@ const logoutUser = asyncHandler(async(req,res)=>{
    )
    const options={
       httpOnly:true,
-      secure:true,
+      secure:isProd,                     // required for sameSite 'none'
+  sameSite: isProd ? 'none' : 'lax', 
    };
    res
    .status(200)
@@ -174,7 +179,8 @@ const {accessToken, refreshToken} = await generateAccessAndRefreshTokens(user?._
 
 const options = {
    httpOnly: true,
-   secure: true,
+   secure: isProd,                  
+  sameSite: isProd ? 'none' : 'lax', 
 }
 return res
 .status(200)
