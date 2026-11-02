@@ -12,7 +12,8 @@ function Sidebar({user,setUser,chats,setChats,setCurrentChat,currentChat,setShow
  
     const {onlineUsers, socket} = useSocket()
     
-
+const chatsRef = useRef(chats)
+chatsRef.current = chats
 
     useEffect(()=>{
       api.get('chats/getUserChats').then(res=>setChats(res.data.data)).catch(err=>console.log(err))
@@ -22,7 +23,10 @@ useEffect(()=>{
     if (!socket) return;
     const onNewMessage=(message)=>{
       const chatId= message?.chat?._id ?? message?.chat
-        
+         if (!chatsRef.current.some((c) => c._id === chatId)) {
+    api.get('chats/getUserChats').then((res) => setChats(res.data.data))
+    return
+         }
       setChats((prev)=>{
         const chat = prev.find((c)=>c._id === chatId)
         if(!chat) return prev
