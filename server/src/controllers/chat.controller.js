@@ -35,6 +35,16 @@ const accessChat = (asyncHandler(async(req,res)=>{
           participants:[req.user._id,userId],
       })
       const fullChat = await Chat.findById(newChat._id).populate("participants", "-password -refreshToken")
+      const io = req.app.get('io')
+const onlineUsers = req.app.get('onlineUsers')
+const roomId = chat._id.toString()
+
+fullChat.participants.forEach((p) => {
+  const socketId = onlineUsers.get(p._id.toString())
+  if (!socketId) return
+  io.sockets.sockets.get(socketId)?.join(roomId)
+  io.to(socketId).emit('newGroupCreated', fullChat)
+})
 return res
  .status(201)
         .json(new ApiResponse(201,  fullChat,"New Chat created",))

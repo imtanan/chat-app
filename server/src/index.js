@@ -8,6 +8,7 @@ import connectDB from './db/index.js'
 import {createServer} from 'http'
 import {Server} from 'socket.io'
 import { app } from './app.js'
+import {Chat} from './models/chat.model.js'
 
 
 
@@ -55,50 +56,51 @@ const token = cookieHeader
 
 const onlineUsers = new Map()
 app.set('onlineUsers',onlineUsers )
-io.on('connection', async(socket)=>{
-   
-    onlineUsers.set(socket.user._id.toString(),socket.id)
-   
-    io.emit('userOnline', socket.user._id.toString())
-  
-    socket.emit('showOnlineUsers',Array.from(onlineUsers.keys()))
+io.on('connection', (socket) => {
+  const userId = socket.user._id.toString()
 
-    
-    socket.on('joinChat',(chatId)=>{
-         socket.join(chatId)
-        
+  onlineUsers.set(userId, socket.id)
+  io.emit('userOnline', userId)
+  socket.emit('showOnlineUsers', Array.from(onlineUsers.keys()))
 
-         socket.to(chatId).emit('userJoined',{
-            username:socket.user.username,
-            userId:socket.user._id
-         })
-        })
-        socket.on('typing', (chatId) => {
-             if (!socket.rooms.has(chatId)) return
+  // join every chat room this user belongs to, on every (re)connect
+  Chat.find({ participants: socket.user._id })
+    .select('_id')
+    .then((chats) => chats.forEach((c) => socket.join(c._id.toString())))
+    .catch((err) => console.log('AUTO JOIN ERROR:', err))
 
-            
-         socket.to(chatId).emit("typing",{
-            chatId,
-            userId:socket.user._id,
-            username:socket.user.username
-         })
-})
-
-socket.on('stopTyping', (chatId) => {
-     if (!socket.rooms.has(chatId)) return
- // same idea
- socket.to(chatId).emit("stopTyping",{
-    chatId,
-    userId:socket.user._id,
- })
-})
-    
-socket.on('disconnect',()=>{
-        onlineUsers.delete(socket.user._id.toString())
-        io.emit('userOffline',socket.user._id.toString())
-          io.emit('showOnlineUsers',Array.from(onlineUsers.keys()))
+  socket.on('joinChat', (chatId) => {
+    socket.join(chatId)
+    socket.to(chatId).emit('userJoined', {
+      username: socket.user.username,
+      userId: socket.user._id,
     })
-    
+  })
+
+  socket.on('typing', (chatId) => {
+    if (!socket.rooms.has(chatId)) return
+    socket.to(chatId).emit('typing', {
+      chatId,
+      userId: socket.user._id,
+      username: socket.user.username,
+    })
+  })
+
+  socket.on('stopTyping', (chatId) => {
+    if (!socket.rooms.has(chatId)) return
+    socket.to(chatId).emit('stopTyping', {
+      chatId,
+      userId: socket.user._id,
+    })
+  })
+
+  socket.on('disconnect', () => {
+   
+    if (onlineUsers.get(userId) !== socket.id) return
+    onlineUsers.delete(userId)
+    io.emit('userOffline', userId)
+    io.emit('showOnlineUsers', Array.from(onlineUsers.keys()))
+  })
 })
 
 connectDB()
