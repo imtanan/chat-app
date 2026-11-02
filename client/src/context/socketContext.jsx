@@ -16,6 +16,8 @@ const SocketProvider = ({children,user})=> {
   const newSocket= io(import.meta.env.VITE_SOCKET_URL, {
     withCredentials: true,
   })
+    newSocket.onAny((event, ...args) => console.log('SOCKET EVENT:', event, args))   // add this line
+
 
 setSocket(newSocket)
   
