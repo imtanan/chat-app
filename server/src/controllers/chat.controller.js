@@ -6,10 +6,7 @@ import { ApiResponse } from '../utils/ApiResponse.js'
 
 //This one is for one-to-one
 const accessChat = (asyncHandler(async(req,res)=>{
-    //take user id 
-    //make sure the chat we are accessing exists...Otherwise create a  new one
-    //Check the isGroupChat flag if its true then make sure to add participants, chatName, admin .
-    //Get the latestMessages in both cases if exists.
+    
     const {userId} = req.body;
     const existingUser = await User.findById(userId)
     if(!existingUser){

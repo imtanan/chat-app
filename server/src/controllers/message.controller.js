@@ -29,9 +29,21 @@ const sendMessage = (asyncHandler(async(req,res)=>{
            })
            const populatedMessage = (await message.populate("sender","-password -refreshToken"))
           
-              const io = req.app.get('io')
-           io.to(chatId).emit("newMessage",populatedMessage)
-           await Chat.findByIdAndUpdate(chatId,{latestMessage:message._id})
+          const chat = await Chat.findByIdAndUpdate(
+  chatId,
+  { latestMessage: message._id },
+  { new: true }
+).select('participants')
+
+const io = req.app.get('io')
+const onlineUsers = req.app.get('onlineUsers')
+
+chat.participants.forEach((p) => {
+  const socketId = onlineUsers.get(p.toString())
+  if (socketId) io.sockets.sockets.get(socketId)?.join(chatId.toString())
+})
+
+io.to(chatId.toString()).emit("newMessage", populatedMessage)
 
             return res
             .status(201)
