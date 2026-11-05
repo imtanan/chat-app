@@ -192,7 +192,7 @@ console.log(err)
   // condition 1 opening
   
   const participant=otherParticipant(chat);
-  
+  if (!chat.isGroupChat && !participant) return null 
   const isOnline = !chat?.isGroupChat && onlineUsers?.includes(participant._id)
 
     const avatarSrc = chat.isGroupChat ? (chat.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${chat.chatName}`) : participant.avatar;

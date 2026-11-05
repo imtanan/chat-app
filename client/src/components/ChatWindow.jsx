@@ -70,7 +70,7 @@ socket.on('newMessage', handleNewMessage)
           {messages.map((message) => {
             const isMine =
               message?.sender?._id === user?._id
-const index = currentChat?.participants.findIndex((p)=>p._id === message?.sender._id)
+const index = currentChat?.participants.findIndex((p)=>p._id === message?.sender?._id)
 const color = NAME_COLORS[index % NAME_COLORS.length]
             return (
               <div
