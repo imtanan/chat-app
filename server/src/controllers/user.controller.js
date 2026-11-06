@@ -13,6 +13,11 @@ import mongoose from 'mongoose'
 
 
 const isProd = process.env.NODE_ENV === 'production'
+const options = {
+  httpOnly: true,
+  secure: isProd,
+  sameSite: isProd ? 'none' : 'lax',
+}
 
 const generateAccessAndRefreshTokens=async(userId)=>{
    try{
@@ -35,11 +40,7 @@ const generateAccessAndRefreshTokens=async(userId)=>{
 }
 
 const registerUser = asyncHandler(async(req,res)=>{      
-      //show already exist message if already exists
-      // save data otherwise in the db 
-      //remove password from the response
-      //check for user creation
-      // return the response.
+      
 
       const {username, password} = req.body;
       const email = req.body.email.toLowerCase().trim()
@@ -88,19 +89,18 @@ const registerUser = asyncHandler(async(req,res)=>{
    if(!createdUser){
       throw new ApiError(500,"Something went wrong while registering the user");
    }
+   const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(createdUser._id)
 
-   return res
-   .status(201)
-   .json(new ApiResponse(200,createdUser, "User registered Successfully"));
+return res
+  .status(201)
+  .cookie('accessToken', accessToken, options)
+  .cookie('refreshToken', refreshToken, options)
+  .json(new ApiResponse(201, createdUser, 'User registered successfully'))
+
+   
 })
 
 const loginUser = asyncHandler(async(req,res)=>{
-     //take data from user  
-     //Check if the data exists in the db
-     //Show error if it does not appear 
-     //give user accessToken otherwise
-     //Redirect them to the Home Page
-     //In case of refresh token, also give user the refresh Token periodically
 
      const {email, password} = req.body
      const user = await User.findOne({email})
@@ -219,12 +219,10 @@ const changeCurrentPassword = (asyncHandler(async(req,res)=>{
    .status(200)
    .json(new ApiResponse(200, {}, "Password Changed Successfully"))
 }))
-//Requires email validator below
+
 const updateAccountDetails = (asyncHandler(async(req,res)=>{
-   //take three things from user
-   //make sure if they are same or changed
-   //if any or all of them changed just save them into the user's db
-   //send response with updated data
+
+   
    const {username,email} = req.body
    const existedUser = await User.findOne({
       $or:[{username},{email}], _id:{$ne:req.user?._id}
@@ -244,6 +242,26 @@ const updatedUser = await User.findByIdAndUpdate(
    },
    { new: true }
 ) .select("-password -refreshToken")
+
+
+const chats = await Chat.find({ participants: req.user._id }).select('participants')
+
+const recipients = new Set()
+chats.forEach((c) => c.participants.forEach((p) => recipients.add(p.toString())))
+
+
+const io = req.app.get('io')
+const onlineUsers = req.app.get('onlineUsers')
+
+recipients.forEach((id) => {
+  const socketId = onlineUsers.get(id)
+  if (socketId) {
+    io.to(socketId).emit('userProfileUpdated', {
+      userId: req.user._id.toString(),
+      username: updatedUser.username,
+    })
+  }
+})
  return res
  .status(200)
  .json(new ApiResponse(200, updatedUser, "Account details updated successfully"))
@@ -280,6 +298,24 @@ const updateUserAvatar = (asyncHandler(async(req,res)=>{
    if(!user){
       throw new ApiError(500, "Something went wrong while updating the avatar")
    }
+   const chats = await Chat.find({participants:req.user?._id}).select('participants')
+
+   const recipients = new Set()
+   chats.forEach((c)=>c.participants.forEach((p)=>recipients.add(p.toString())))
+
+   const io = req.app.get('io')
+   const onlineUsers = req.app.get('onlineUsers')
+
+   recipients.forEach((id)=>{
+      const socketId = onlineUsers.get(id)
+      if(socketId){
+         io.to(socketId).emit('userProfileUpdated',{
+            userId: req.user?._id.toString(),
+            avatar:user.avatar,
+         })
+      }
+   })
+
    if(getAvatarPublicId){
        try {
     const removeOldAvatar = await cloudinary.uploader.destroy(getAvatarPublicId)
