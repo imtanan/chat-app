@@ -93,10 +93,10 @@ console.log(err)
        setLoading(true)
        try{
        await api.post('users/logout')
-       setUser(null);
-       }catch(err){
+      }catch(err){
         console.log(err)
-       }finally{
+      }finally{
+         setUser(null);
         setLoading(false)
       }
        
@@ -105,7 +105,7 @@ console.log(err)
   //  socket area
   
   return (
-    <div className="w-95 shrink-0 h-full bg-[#111320] border-r border-[#1E2235] flex flex-col">
+    <div className={`${currentChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 shrink-0 h-full bg-[#111320] border-r border-[#1E2235] flex flex-col`}>
  <div className="inline-flex items-center gap-1.5 mb-2 mt-6 ml-3.5">
   <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center">
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -119,7 +119,7 @@ console.log(err)
 
  {/* Search Users */}
 
-<div className="relative mt-2 mb-4 w-65 mx-auto">
+<div className="relative mt-2 mb-4 mx-3">
   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6b7491] pointer-events-none" />
 
   <input
@@ -231,7 +231,7 @@ console.log(err)
 <div className="border border-t border-[#1E2235]">
 
 <UpdateProfile user={user} setShowModal={setShowModal} />
-<div className='mt-auto mb-2 w-60 mx-auto'>
+<div className='mt-auto mb-2  mx-3'>
   <button disabled={loading} onClick={handleSignOut} className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-[#160B0B] text-[#EF4444] hover:text-[#FFFFFF] text-sm font-medium hover:bg-[#EF4444] transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
        <LogOut className="w-4 h-4" />
         { loading? "Signing Out...":"Sign Out"}

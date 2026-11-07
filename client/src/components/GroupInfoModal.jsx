@@ -118,6 +118,7 @@ const addMember=async(user)=>{
       
          setChats((prev) => prev.filter((c) => c._id !== currentChat._id))
     setCurrentChat(null)
+    onClose()
     }catch(err){
       console.log("Error leaving the group",err)
     }finally{

@@ -6,7 +6,7 @@ import api from '../api/axios.js'
 
 
 
-function ChatWindow({ currentChat,setGroupInfo, user }) {
+function ChatWindow({ currentChat,setCurrentChat,setGroupInfo, user }) {
   const {socket, onlineUsers} = useSocket();
   const [messages, setMessages] = useState([])
   const listRef = useRef(null)
@@ -59,13 +59,13 @@ socket.on('newMessage', handleNewMessage)
 
   return (
     <>
-      <div className="flex-1 flex flex-col h-full bg-[#0b0d17]">
+      <div className={`${currentChat ? 'flex' : 'hidden md:flex'} min-w-0 flex-1 flex flex-col h-full bg-[#0b0d17]`}>
 
         {/* Header */}
-        <ChatHeader currentChat={currentChat} user={user} setGroupInfo={setGroupInfo} />
+        <ChatHeader currentChat={currentChat} setCurrentChat={setCurrentChat} user={user} setGroupInfo={setGroupInfo} />
 
         {/* Messages */}
-        <div ref={listRef} className="overflow-y-auto flex-1 px-7 custom-scrollbar">
+        <div ref={listRef} className="overflow-y-auto flex-1 px-3 md:px-7 custom-scrollbar">
 
           {messages.map((message) => {
             const isMine =
@@ -81,7 +81,7 @@ const color = NAME_COLORS[index % NAME_COLORS.length]
               >
 
                 {/* Avatar + Message */}
-                <div className="flex items-end gap-3">
+                <div className="flex items-end gap-3 max-w-[85%]">
 
                   {!isMine && (
                     
@@ -92,7 +92,7 @@ const color = NAME_COLORS[index % NAME_COLORS.length]
                   )}
 
                   {/* Bubble + Time */}
-                  <div>
+                  <div className="min-w-0">
 
                     {!isMine &&(<p className={`text-xs flex items-center pb-1 font-semibold ${color}`}>{message?.sender?.username}</p>)}
                     <div
@@ -101,7 +101,7 @@ const color = NAME_COLORS[index % NAME_COLORS.length]
                           ? "bg-[#7837e6] border-[#7837e6]":"bg-[#181a28] border-[#24283b]" 
                       }`}
                     >
-                      <p className="text-white">
+                      <p className="text-white break-words">
                         {message.content}
                       </p>
                     </div>

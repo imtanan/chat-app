@@ -16,7 +16,9 @@ function Dashboard({user,setUser}) {
 const {socket} = useSocket()
 
 
-
+useEffect(() => {
+  setGroupInfo(false)
+}, [currentChat?._id])
 
     useEffect(()=>{
   if (!socket) return;
@@ -92,10 +94,31 @@ const onGroupUpdated = (chat)=>{
 
 },[socket])
 
+
+useEffect(()=>{
+  if(!socket) return
+   
+  const onUserProfileUpdated = ({userId,username,avatar})=>{
+    const patchChat = (chat) => ({
+      ...chat,
+      participants: chat.participants.map((p) =>
+        p._id === userId
+          ? { ...p, ...(avatar && { avatar }), ...(username && { username }) }
+          : p
+      ),
+    })
+
+    setChats((prev) => prev.map(patchChat))
+    setCurrentChat((prev) => (prev ? patchChat(prev) : prev))
+  }
+    socket.on('userProfileUpdated', onUserProfileUpdated)
+  return () => socket.off('userProfileUpdated', onUserProfileUpdated)
+},[socket])
+
      return (
     <div className="h-full flex overflow-hidden">
         <Sidebar user={user} setUser={setUser} setShowModal={setShowModal} setGroupModal={setGroupModal} chats={chats} setChats={setChats} currentChat={currentChat} setCurrentChat={setCurrentChat}  />
-      <ChatWindow currentChat={currentChat} setGroupInfo={setGroupInfo}    user={user} />
+      <ChatWindow currentChat={currentChat} setCurrentChat={setCurrentChat} setGroupInfo={setGroupInfo}    user={user} />
    {showModal && (<UpdateProfileModal user={user} setUser={setUser} onClose={() => setShowModal(false)} />
   )}
 

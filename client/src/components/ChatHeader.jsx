@@ -1,9 +1,9 @@
 
 import { useState,useEffect } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown,ArrowLeft } from 'lucide-react';
 import {useSocket} from '../context/useSocket.js'
 
-function ChatHeader({currentChat,user,setGroupInfo}) {
+function ChatHeader({currentChat,setCurrentChat,user,setGroupInfo}) {
   const {onlineUsers,socket} = useSocket()
   const [typingUsers, setTypingUsers] = useState({})
 const otherParticipant = currentChat?.participants.find(
@@ -58,6 +58,9 @@ const displayName = currentChat?.isGroupChat ? currentChat?.chatName : otherPart
     {currentChat? (currentChat.isGroupChat?(<div className="flex items-center px-6 py-4 border-b border-[#1E2235] bg-[#111320]">
       <button className='flex items-center  gap-2.5 px-2 py-1 -mx-2 -my-1 hover:bg-[#181A28] rounded-lg transition-colors cursor-pointer' onClick={()=>setGroupInfo(true)}>
       <div className='relative'>
+        <button onClick={() => setCurrentChat(null)} className="md:hidden mr-2 text-[#6b7491] hover:text-white">
+  <ArrowLeft className="w-5 h-5" />
+</button>
      <img src={avatarSrc} className='w-9 h-9 rounded-3xl' shrink-0 />
      {isOnline && <span className='absolute bottom-0 right-0  w-3 h-3 rounded-full bg-green-600 border-2 border-[#111320]'></span>}
      </div>
@@ -71,6 +74,9 @@ const displayName = currentChat?.isGroupChat ? currentChat?.chatName : otherPart
           <div className="flex items-center gap-2.5 px-6 py-4 border-b border-[#1E2235] bg-[#111320]">
      
       <div className='relative'>
+        <button onClick={() => setCurrentChat(null)} className="md:hidden mr-2 text-[#6b7491] hover:text-white">
+  <ArrowLeft className="w-5 h-5" />
+</button>
      <img src={avatarSrc} className='w-9 h-9 rounded-3xl' shrink-0 />
      {isOnline && <span className='absolute bottom-0 right-0  w-3 h-3 rounded-full bg-green-600 border-2 border-[#111320]'></span>}
      </div>
